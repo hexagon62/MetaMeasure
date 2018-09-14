@@ -259,6 +259,6 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
-/MetaMeasure.vcxproj.filters
-/MetaMeasure.vcxproj
-/MetaMeasure.sln
+*.filters
+*.vcxproj
+*.sln
