@@ -1,18 +1,19 @@
+#define METAMEASURE_SUPPRESS_CONVERSION_WARNINGS
 #include <MetaMeasure.hpp>
 
 #include <iostream>
 #include <iomanip>
 
+METAMEASURE_UNIT(Foo, MetaMeasure::Length, 2, 1);
+
 int main()
 {
   using namespace MetaMeasure::Literals;
   
-  MetaMeasure::Meters<float> measurement = 5.f;
-  MetaMeasure::Inches<float> measurement2 = measurement;
-  auto measurement3 = 42.0_m;
+  Foo<float> measurement = 5_m;
+  MetaMeasure::Meters<float> measurement2 = measurement;
   
-  std::cout << measurement.value() << " m = " << measurement2.value() << " in\n";
-  std::cout << "Measurement from literal: " << measurement3.value() << " m\n";
+  std::cout << measurement.value() << " foo = " << measurement2.value() << " m\n";
 
   system("pause");
 }

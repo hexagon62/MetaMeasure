@@ -89,7 +89,7 @@ private:
   AllowConversion<OtherUnits...> convert(const Measurement<NumU, OtherUnits...>& other)
   {
     using ConversionRatio = Private::ConversionRatio<UnitTuple, std::tuple<OtherUnits...>>;
-#ifdef METAMEASURE_STATIC_CAST_CONVERSIONS
+#ifdef METAMEASURE_SUPPRESS_CONVERSION_WARNINGS
     return static_cast<NumT>(other.value())*ConversionRatio::den / ConversionRatio::num;
 #else
     return other.value()*ConversionRatio::den / ConversionRatio::num;
