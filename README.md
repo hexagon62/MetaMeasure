@@ -35,8 +35,8 @@ METAMEASURE_LITERAL(Foos, 3, _foo3); // Cubic foos
 
 // ...
 
- // Literal for MetaMeasure::Measurement<long double, UnitFoo<1>>
- // Redefine METAMEASURE_LITERAL_LD_NUMBER_TYPE if you want something other than long double
+// Literal for MetaMeasure::Measurement<long double, UnitFoo<1>>
+// Redefine METAMEASURE_LITERAL_LD_NUMBER_TYPE if you want something other than long double
 auto measurement = 12.34_foo;
 
 // Literal for MetaMeaesure::Measurement<long long int, UnitFoo<1>>
