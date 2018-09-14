@@ -3,14 +3,20 @@
 
 #include <MetaMeasure/Units.hpp>
 
+#include <tuple>
+
 namespace MetaMeasure
 {
+
+namespace Private
+{
+
 template<typename Tuple, typename Tuple2>
 struct LargerTuple_
 {
   using Type = std::conditional_t
   <
-    std::tuple_size<Tuple>::value < std::tuple_size<Tuple2>::value,
+    (std::tuple_size<Tuple>::value < std::tuple_size<Tuple2>::value),
     Tuple2,
     Tuple
   >;
@@ -21,7 +27,7 @@ struct SmallerTuple_
 {
   using Type = std::conditional_t
   <
-    std::tuple_size<Tuple>::value < std::tuple_size<Tuple2>::value,
+    (std::tuple_size<Tuple>::value < std::tuple_size<Tuple2>::value),
     Tuple,
     Tuple2
   >;
@@ -46,7 +52,7 @@ struct HasDimension_<Dimension, std::tuple<U, Ts...>> : std::conditional_t
   std::is_same_v<Dimension, typename U::Dimension>,
   std::true_type,
   HasDimension_<Dimension, std::tuple<Ts...>>
->{};
+> {};
 
 template<typename Dimension, typename Tuple>
 using HasDimension = typename HasDimension_<Dimension, Tuple>::type;
@@ -83,32 +89,65 @@ using IdenticalDimensions = typename SharesDimensions_
 
 // Calculates the reciprocal of a ratio
 template<typename Ratio>
-using Reciprocal = std::ratio<Ratio::den, Ratio::num>;
+struct Reciprocal_
+{
+private:
+  using R = typename Ratio;
+
+public:
+  using Type = std::ratio<R::den, R::num>;
+};
+
+template<typename Ratio>
+using Reciprocal = typename Reciprocal_<Ratio>::Type;
+
+// Extracts the exponent of the dimension from a unit
+template<typename T>
+struct ExponentOf
+{
+  static constexpr ExponentType Value = T::Dimension::Exponent;
+};
 
 // Calculates the unit's ratio to the base unit, accounting for the degree of the unit
 // When I say accounting for degree: there are 1000 m in 1 km, and 1000000 m² in 1 km²
 // The ratio changes with the degree
-
-template<typename Ratio, DegreeType Degree>
-struct UnitRatio_ : std::conditional_t
-<
-  (Degree == 0),
-  OneToOne,
-  std::conditional_t
-  <
-    (Degree > 0),
-
-    // If the degree is more than 1, multiply the ratio by itself until the degree is 0
-    std::ratio_multiply<Ratio, UnitRatio_<Ratio, (Degree - 1)>>,
-
-    // If the degree is less than 1, take the absolute value of the degree,
-    // And do same as you would with a positive degree. Then take the reciprocal of the ratio.
-    Reciprocal<UnitRatio_<Ratio, (-Degree)>>
-  >
->;
+template<typename T, typename = std::true_type>
+struct UnitRatio_;
 
 template<typename T>
-using UnitRatio = typename UnitRatio_<typename T::Ratio, T::Dimension::Degree>;
+struct UnitRatio_<T, std::integral_constant<bool, (T::Dimension::Exponent == 0)>>
+{
+  using Type = OneToOne;
+};
+
+template<typename T>
+struct UnitRatio_<T, std::integral_constant<bool, (T::Dimension::Exponent > 0)>>
+{
+private:
+  using NextDimension = Dimension<typename T::Dimension::Identifier, (T::Dimension::Exponent - 1)>;
+  using Ratio = typename T::Ratio;
+  using NextUnit = Unit<NextDimension, Ratio>;
+
+public:
+  // Multiply the ratio by itself until the degree is 0. Basic exponentation, but done recursively.
+  using Type = std::ratio_multiply<Ratio, typename UnitRatio_<NextUnit>::Type>;
+};
+
+template<typename T>
+struct UnitRatio_<T, std::integral_constant<bool, (T::Dimension::Exponent < 0)>>
+{
+private:
+  using NextDimension = Dimension<typename T::Dimension::Identifier, (-T::Dimension::Exponent)>;
+  using Ratio = typename T::Ratio;
+  using NextUnit = Unit<NextDimension, Ratio>;
+
+public:
+  // Since x^(-y) is really the reciprocal of x^y, we calculate x^y and then take the reciprocal
+  using Type = Reciprocal<typename UnitRatio_<NextUnit>::Type>;
+};
+
+template<typename T>
+using UnitRatio = typename UnitRatio_<T>::Type;
 
 // Calculates the overall ratio of a measurement, which will be used for conversions
 // Instead of converting each unit individually, we can do it all at once with this ratio
@@ -140,6 +179,8 @@ struct OverallRatio_<std::tuple<T>>
 template<typename Tuple>
 using OverallRatio = typename OverallRatio_<Tuple>::Type;
 
+}
+
 template<typename NumT, typename UnitTuple>
 class Measurement
 {
@@ -148,19 +189,19 @@ class Measurement
   template<typename UnitTupleU>
   using AllowAssignmentAndArithmetic = std::enable_if_t
   <
-    SharesDimensions<UnitTuple, UnitTupleU>::value,
+    Private::SharesDimensions<UnitTuple, UnitTupleU>::value,
     ThisType
   >;
 
   template<typename UnitTupleU>
   using AllowComparison = std::enable_if_t
   <
-    IdenticalDimensions<UnitTuple, UnitTupleU>::value,
+    Private::IdenticalDimensions<UnitTuple, UnitTupleU>::value,
     bool
   >;
 
   template<typename UnitTupleU>
-  using TranslationRatio = std::ratio_multiply<OverallRatio<UnitTuple>, OverallRatio<UnitTupleU>>;
+  using TranslationRatio = std::ratio_multiply<Private::OverallRatio<UnitTuple>, Private::OverallRatio<UnitTupleU>>;
 
 public:
   using ValueType = NumT;
@@ -191,8 +232,8 @@ private:
   ValueType v = 0;
 };
 
-template<typename NumT, DegreeType DegreeV = 1>
-using Meters = Measurement<NumT, std::tuple<UnitMeters<DegreeV>>>;
+template<typename NumT, ExponentType Exponent = 1>
+using Meters = Measurement<NumT, std::tuple<UnitMeters<Exponent>>>;
 
 }
 

@@ -3,18 +3,17 @@
 
 #include <ratio>
 #include <type_traits>
-#include <tuple>
 
 namespace MetaMeasure
 {
 using OneToOne = std::ratio<1, 1>;
-using DegreeType = short;
+using ExponentType = short;
 
-template<typename IdentifierT, DegreeType DegreeV = 1>
+template<typename IdentifierT, ExponentType ExponentV = 1>
 struct Dimension
 {
   using Identifier = IdentifierT;
-  static constexpr DegreeType Degree = DegreeV;
+  static constexpr ExponentType Exponent = ExponentV;
 };
 
 template<typename DimensionT, typename RatioT>
@@ -34,13 +33,13 @@ struct Luminosity {};
 struct SubstanceQuantity {};
 
 // SI base units; ratios are relative to these
-template<DegreeType DegreeV = 1> using UnitMeters = Unit<Dimension<Length, DegreeV>, OneToOne>;
-template<DegreeType DegreeV = 1> using UnitKilograms = Unit<Dimension<Mass, DegreeV>, std::kilo>;
-template<DegreeType DegreeV = 1> using UnitSeconds = Unit<Dimension<Time, DegreeV>, OneToOne>;
-template<DegreeType DegreeV = 1> using UnitKelvins = Unit<Dimension<Temperature, DegreeV>, OneToOne>;
-template<DegreeType DegreeV = 1> using UnitAmperes = Unit<Dimension<Current, DegreeV>, OneToOne>;
-template<DegreeType DegreeV = 1> using UnitCandelas = Unit<Dimension<Luminosity, DegreeV>, OneToOne>;
-template<DegreeType DegreeV = 1> using UnitMoles = Unit<Dimension<SubstanceQuantity, DegreeV>, OneToOne>;
+template<ExponentType Exponent = 1> using UnitMeters = Unit<Dimension<Length, Exponent>, OneToOne>;
+template<ExponentType Exponent = 1> using UnitKilograms = Unit<Dimension<Mass, Exponent>, std::kilo>;
+template<ExponentType Exponent = 1> using UnitSeconds = Unit<Dimension<Time, Exponent>, OneToOne>;
+template<ExponentType Exponent = 1> using UnitKelvins = Unit<Dimension<Temperature, Exponent>, OneToOne>;
+template<ExponentType Exponent = 1> using UnitAmperes = Unit<Dimension<Current, Exponent>, OneToOne>;
+template<ExponentType Exponent = 1> using UnitCandelas = Unit<Dimension<Luminosity, Exponent>, OneToOne>;
+template<ExponentType Exponent = 1> using UnitMoles = Unit<Dimension<SubstanceQuantity, Exponent>, OneToOne>;
 }
 
 #endif
