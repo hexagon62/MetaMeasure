@@ -26,6 +26,8 @@ METAMEASURE_UNIT(Foo, Length, 2, 1) // For every 2 meters, there is 1 foo
 You can also easily create literals for your unit, like so:
 ```cpp
 METAMEASURE_LITERAL(Foo, 1, _foo)
+METAMEASURE_LITERAL(Foo, 2, _foo2) // Square foos
+METAMEASURE_LITERAL(Foo, 3, _foo3) // Cubic foos
 
 // ...
 
