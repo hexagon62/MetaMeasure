@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Testing">
+      <UniqueIdentifier>{436e0425-59f0-4193-ae7d-35a66b81a068}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{b8c47793-086a-4459-922f-ebfc8d8b5ba7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\MetaMeasure\Measurement.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MetaMeasure\Units.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="testing\Testing.cpp">
+      <Filter>Testing</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
