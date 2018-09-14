@@ -1,13 +1,18 @@
-#include <MetaMeasure/Measurement.hpp>
+#include <MetaMeasure/Units.hpp>
+
 #include <iostream>
+#include <iomanip>
 
 int main()
 {
-  auto measurement = MetaMeasure::Meters<float>(1.f);
-  MetaMeasure::Measurement<float, MetaMeasure::UnitInches<>> measurement2;
-  measurement2 = measurement;
+  using namespace MetaMeasure::Literals;
   
-  std::cout << measurement.value() << " m\n";
-  std::cout << measurement2.value() << " in\n";
+  MetaMeasure::Meters<float> measurement = 5.f;
+  MetaMeasure::Inches<float> measurement2 = measurement;
+  auto measurement3 = 42.0_m;
+  
+  std::cout << measurement.value() << " m = " << measurement2.value() << " in\n";
+  std::cout << "Measurement from literal: " << measurement3.value() << " m\n";
+
   system("pause");
 }

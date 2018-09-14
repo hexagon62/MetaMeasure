@@ -1,12 +1,37 @@
 #ifndef METAMEASURE_MEASUREMENT_INCLUDED
 #define METAMEASURE_MEASUREMENT_INCLUDED
 
-#include <MetaMeasure/Units.hpp>
-
 #include <tuple>
+#include <ratio>
+#include <type_traits>
 
 namespace MetaMeasure
 {
+
+using ExponentType = short;
+
+template<typename IdentifierT, ExponentType ExponentV = 1>
+struct Dimension
+{
+  using Identifier = IdentifierT;
+  static constexpr ExponentType Exponent = ExponentV;
+};
+
+template<typename DimensionT, typename RatioT>
+struct Unit
+{
+  using Dimension = DimensionT;
+  using Ratio = RatioT;
+};
+
+// The 7 SI dimensions
+struct Length {};
+struct Mass {};
+struct Time {};
+struct Temperature {};
+struct Current {};
+struct Luminosity {};
+struct SubstanceQuantity {};
 
 namespace Private
 {
@@ -39,7 +64,7 @@ using LargerTuple = typename LargerTuple_<Tuple, Tuple2>::Type;
 template<typename Tuple, typename Tuple2>
 using SmallerTuple = typename SmallerTuple_<Tuple, Tuple2>::Type;
 
-// For use in checking if operations are valid
+// Checks if a Tuple has a dimension in it
 template<typename Dimension, typename Tuple>
 struct HasDimension_;
 
@@ -86,6 +111,44 @@ using IdenticalDimensions = typename SharesDimensions_
   SmallerTuple<Tuple, Tuple2>,
   LargerTuple<Tuple, Tuple2>
 >::type;
+
+// Checks if parameter pack has exactly one of a type
+template<typename...>
+struct HasOneOf;
+
+template<typename T>
+struct HasOneOf<T>
+{
+  static constexpr bool Value = false;
+};
+
+template<typename T, typename U, typename... Ts>
+struct HasOneOf<T, U, Ts...>
+{
+  static constexpr bool Value = std::is_same_v<T, U>
+    || HasOneOf<T, Ts...>::Value;
+};
+
+// Checks if Tuple has no duplicated dimensions at all
+template<typename Tuple>
+struct HasNoDuplicates;
+
+template<>
+struct HasNoDuplicates<std::tuple<>>
+{
+  static constexpr bool Value = true;
+};
+
+template<typename T, typename... Ts>
+struct HasNoDuplicates<std::tuple<T, Ts...>>
+{
+  static constexpr bool Value = HasNoDuplicates<std::tuple<Ts...>>::Value &&
+    !HasOneOf
+    <
+      typename T::Dimension::Identifier,
+      typename Ts::Dimension::Identifier...
+    >::Value;
+};
 
 // Calculates the reciprocal of a ratio
 template<typename Ratio>
@@ -182,14 +245,31 @@ using ConversionRatio = std::ratio_multiply<OverallRatio<UnitTuple>, OverallRati
 template<typename NumT, typename... Units>
 class Measurement
 {
+public:
+  using ValueType = NumT;
+
+private:
   using UnitTuple = std::tuple<Units...>;
   using ThisType = Measurement<NumT, Units...>;
 
+  // An example of something that would cause this error
+  // Would be specifying inches & meters in the parameter pack.
+  // Another example would be specifying seconds and hertz.
+  static_assert(Private::HasNoDuplicates<UnitTuple>::Value,
+                "Measurement has 2 or more units of the same dimension.");
+
   template<typename... OtherUnits>
-  using AllowAssignmentAndArithmetic = std::enable_if_t
+  using AllowAssignment = std::enable_if_t
   <
     Private::SharesDimensions<UnitTuple, std::tuple<OtherUnits...>>::value,
     ThisType
+  >;
+
+  template<typename... OtherUnits>
+  using AllowConversion = std::enable_if_t
+  <
+    Private::SharesDimensions<UnitTuple, std::tuple<OtherUnits...>>::value,
+    ValueType
   >;
 
   template<typename... OtherUnits>
@@ -200,40 +280,58 @@ class Measurement
   >;
 
 public:
-  using ValueType = NumT;
+  constexpr Measurement() = default;
+  constexpr Measurement(NumT value) : v(value) {}
+  constexpr Measurement(ThisType& other) : v(other.v) {}
+  constexpr Measurement(ThisType&& other) : v(std::move(other.v)) {}
 
-  Measurement() = default;
-  Measurement(NumT value) : v(value) {}
+  template<typename NumU, typename... OtherUnits>
+  constexpr Measurement(const Measurement<NumU, OtherUnits...>& other)
+    : v(this->convert(other))
+  {
 
-  const ValueType& value() const { return this->v; }
-  ValueType& value() { return this->v; }
+  }
 
-  ThisType& operator=(const ThisType& other)
+  constexpr const ValueType& value() const { return this->v; }
+
+  constexpr ThisType& operator=(const ThisType& other)
   {
     this->v = other.value();
     return *this;
   }
 
-  template<typename... OtherUnits>
-  AllowAssignmentAndArithmetic<OtherUnits...>& operator=(const Measurement<NumT, OtherUnits...>& other)
+  template<typename NumU, typename... OtherUnits>
+  constexpr AllowAssignment<OtherUnits...>& operator=(const Measurement<NumU, OtherUnits...>& other)
   {
-    using ConversionRatio = Private::ConversionRatio<UnitTuple, std::tuple<OtherUnits...>>;
-    this->v = other.value()*ConversionRatio::den/ConversionRatio::num;
+    this->v = this->convert(other);
     return *this;
   }
 
   template<typename... OtherUnits>
-  AllowComparison<OtherUnits...> operator<(const Measurement<NumT, OtherUnits...>& other)
+  constexpr AllowComparison<OtherUnits...> operator<(const Measurement<NumT, OtherUnits...>& other)
   {
     return this->v < other.value();
   }
 
-private:
-  ValueType v = 0;
-};
+  constexpr ThisType operator-()
+  {
+    return -this->v;
+  }
 
-template<typename NumT, ExponentType Exponent = 1>
-using Meters = Measurement<NumT, UnitMeters<Exponent>>;
+private:
+  ValueType v;
+
+  template<typename NumU, typename... OtherUnits>
+  AllowConversion<OtherUnits...> convert(const Measurement<NumU, OtherUnits...>& other)
+  {
+    using ConversionRatio = Private::ConversionRatio<UnitTuple, std::tuple<OtherUnits...>>;
+#ifdef METAMEASURE_STATIC_CAST_CONVERSIONS
+    return static_cast<NumT>(other.value())*ConversionRatio::den / ConversionRatio::num;
+#else
+    return other.value()*ConversionRatio::den / ConversionRatio::num;
+#endif
+  }
+};
 
 }
 
