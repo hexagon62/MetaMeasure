@@ -155,7 +155,7 @@ template<typename Ratio>
 struct Reciprocal_
 {
 private:
-  using R = typename Ratio;
+  using R = Ratio;
 
 public:
   using Type = std::ratio<R::den, R::num>;
