@@ -4,14 +4,24 @@
     <Filter Include="Testing">
       <UniqueIdentifier>{436e0425-59f0-4193-ae7d-35a66b81a068}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{4d5aee58-d550-4249-8274-2799fd201c3f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\MetaMeasure\Measurement.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MetaMeasure\Units.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MetaMeasure\MetaMeasure.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Testing\Testing.cpp">
       <Filter>Testing</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Units.hpp" />
-    <ClInclude Include="Measurement.hpp" />
   </ItemGroup>
 </Project>

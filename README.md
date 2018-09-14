@@ -3,7 +3,7 @@ A header only library for storing measurements and doing simple dimensional anal
 
 # Simple program that converts from meters to inches
 ```cpp
-#include <MetaMeasure/Units.hpp>
+#include <MetaMeasure.hpp>
 
 #include <iostream>
 

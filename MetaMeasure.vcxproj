@@ -18,6 +18,14 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\MetaMeasure\Measurement.hpp" />
+    <ClInclude Include="include\MetaMeasure\MetaMeasure.hpp" />
+    <ClInclude Include="include\MetaMeasure\Units.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Testing\Testing.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{446B1E1D-57D5-4620-9A5B-541C761928C5}</ProjectGuid>
@@ -76,7 +84,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Z:\Projects\Visual Studio 2017\Repos\MetaMeasure\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Z:\Projects\Visual Studio 2017\Repos\MetaMeasure\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -86,7 +94,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Z:\Projects\Visual Studio 2017\Repos\MetaMeasure\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Z:\Projects\Visual Studio 2017\Repos\MetaMeasure\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -98,7 +106,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Z:\Projects\Visual Studio 2017\Repos\MetaMeasure\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Z:\Projects\Visual Studio 2017\Repos\MetaMeasure\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -114,7 +122,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Z:\Projects\Visual Studio 2017\Repos\MetaMeasure\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Z:\Projects\Visual Studio 2017\Repos\MetaMeasure\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -122,13 +130,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="Measurement.hpp" />
-    <ClInclude Include="Units.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Testing\Testing.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
