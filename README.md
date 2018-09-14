@@ -20,7 +20,11 @@ int main()
 If you need to do this for some reason, it's easy.
 
 ```cpp
-METAMEASURE_UNIT(Foos, MetaMeasure::Length, 2, 1); // For every 2 meters, there is 1 foo
+// Every unit has the ratio to corresponding base unit in its type.
+// When your measurement is multiplied by this ratio, you should get the measurement in those base units.
+// The 7 SI base units are used for the 7 SI dimensions/quantities.
+// For instance, the base unit for length is a meter.
+METAMEASURE_UNIT(Foos, MetaMeasure::Length, 1, 2); // For every 1 foo, there is 2 meters
 ```
 
 You can also easily create literals for your unit, like so:
@@ -38,4 +42,14 @@ auto measurement = 12.34_foo;
 // Literal for MetaMeaesure::Measurement<long long int, UnitFoo<1>>
 // Redefine METAMEASURE_LITERAL_ULL_NUMBER_TYPE if you want something other than long long int
 auto intMeasurement = 12_foo;
+```
+
+# Creating your own physical quantities/dimensions
+You can also do this if you really need to, and it's even easier than creating a unit.
+Bear in mind what you're using as the base unit, as that's what a 1:1 ratio will correspond to.
+
+```cpp
+struct MyDimension {};
+
+METAMEASURE_UNIT(MyUnits, MyDimension, 1, 1); // MyUnits are the base unit for MyDimension
 ```

@@ -22,25 +22,11 @@ private:
   static_assert(Private::HasNoDuplicates<UnitTuple>::Value,
                 "Measurement has 2 or more units of the same dimension.");
 
-  template<typename... OtherUnits>
-  using AllowAssignment = std::enable_if_t
-  <
-    Private::SharesDimensions<UnitTuple, std::tuple<OtherUnits...>>::value,
-    ThisType
-  >;
-
-  template<typename... OtherUnits>
-  using AllowConversion = std::enable_if_t
-  <
-    Private::SharesDimensions<UnitTuple, std::tuple<OtherUnits...>>::value,
-    ValueType
-  >;
-
-  template<typename... OtherUnits>
-  using AllowComparison = std::enable_if_t
+  template<typename T, typename... OtherUnits>
+  using EnableIfIdentical = std::enable_if_t
   <
     Private::IdenticalDimensions<UnitTuple, std::tuple<OtherUnits...>>::value,
-    bool
+    T
   >;
 
 public:
@@ -49,12 +35,10 @@ public:
   constexpr Measurement(ThisType& other) : v(other.v) {}
   constexpr Measurement(ThisType&& other) : v(std::move(other.v)) {}
 
+  // If you error at this constructor,
+  // Chances are you tried to copy construct from a measurement without identical dimensions.
   template<typename NumU, typename... OtherUnits>
-  constexpr Measurement(const Measurement<NumU, OtherUnits...>& other)
-    : v(this->convert(other))
-  {
-
-  }
+  constexpr Measurement(const Measurement<NumU, OtherUnits...>& other) : v(this->convert(other)) {}
 
   constexpr const ValueType& value() const { return this->v; }
 
@@ -65,14 +49,14 @@ public:
   }
 
   template<typename NumU, typename... OtherUnits>
-  constexpr AllowAssignment<OtherUnits...>& operator=(const Measurement<NumU, OtherUnits...>& other)
+  constexpr EnableIfIdentical<ThisType, OtherUnits...>& operator=(const Measurement<NumU, OtherUnits...>& other)
   {
     this->v = this->convert(other);
     return *this;
   }
 
   template<typename... OtherUnits>
-  constexpr AllowComparison<OtherUnits...> operator<(const Measurement<NumT, OtherUnits...>& other)
+  constexpr EnableIfIdentical<bool, OtherUnits...> operator<(const Measurement<NumT, OtherUnits...>& other)
   {
     return this->v < other.value();
   }
@@ -86,13 +70,13 @@ private:
   ValueType v;
 
   template<typename NumU, typename... OtherUnits>
-  AllowConversion<OtherUnits...> convert(const Measurement<NumU, OtherUnits...>& other)
+  constexpr EnableIfIdentical<ValueType, OtherUnits...> convert(const Measurement<NumU, OtherUnits...>& other)
   {
     using ConversionRatio = Private::ConversionRatio<UnitTuple, std::tuple<OtherUnits...>>;
 #ifdef METAMEASURE_SUPPRESS_CONVERSION_WARNINGS
-    return static_cast<NumT>(other.value())*ConversionRatio::den / ConversionRatio::num;
+    return static_cast<NumT>(other.value())*ConversionRatio::num / ConversionRatio::den;
 #else
-    return other.value()*ConversionRatio::den / ConversionRatio::num;
+    return other.value()*ConversionRatio::num / ConversionRatio::den;
 #endif
   }
 };

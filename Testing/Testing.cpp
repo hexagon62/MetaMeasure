@@ -2,18 +2,16 @@
 #include <MetaMeasure.hpp>
 
 #include <iostream>
-#include <iomanip>
 
-METAMEASURE_UNIT(Foo, MetaMeasure::Length, 2, 1);
+METAMEASURE_UNIT(HalfSeconds, MetaMeasure::Time, 1, 2);
 
 int main()
 {
-  using namespace MetaMeasure::Literals;
-  
-  Foo<float> measurement = 5_m;
-  MetaMeasure::Meters<float> measurement2 = measurement;
-  
-  std::cout << measurement.value() << " foo = " << measurement2.value() << " m\n";
+  using namespace MetaMeasure;
 
-  system("pause");
+  Measurement<float, UnitMeters<1>, UnitSeconds<-1>> measurement = 1.f;
+  Measurement<float, UnitHalfSeconds<-1>, UnitInches<1>> measurement2 = measurement;
+  
+  std::cout << measurement2.value() << "\n";
+
 }

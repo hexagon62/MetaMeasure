@@ -3,8 +3,16 @@
 
 #include <MetaMeasure/Measurement.hpp>
 
-// This macro will make creating a unit much easier
-// See below for examples on how to use it
+// Creates 2 type definitions for a unit:
+// The first type definition will be called Unit##NAME.
+// This is just used to specify that a measurement uses the unit.
+// The other type definition will be called NAME, which is a MetaMeasure::Measurement that only uses the unit.
+// See the examples in the header below
+// DIMENSION is the quantity that is measured (i.e. MetaMeasure::Length)
+// RATIO_NUM is the conversion ratio's numerator
+// RATIO_DEN is the conversion ratio's denominator
+// The conversion ratio is a ratio that, if multiplied by your measurement, converts the measurement to base units.
+// In the case of MetaMeasure::Length, it would convert your measurement to meters.
 #define METAMEASURE_UNIT(NAME, DIMENSION, RATIO_NUM, RATIO_DEN) \
 template<MetaMeasure::ExponentType Exponent = 1> \
 using Unit##NAME = MetaMeasure::Unit<MetaMeasure::Dimension<DIMENSION, Exponent>, std::ratio<RATIO_NUM, RATIO_DEN>>; \
@@ -75,10 +83,10 @@ METAMEASURE_LITERAL(Moles, 1, _mol);
 
 // Customary units
 // To give an example of how the conversion ratios work, there are exactly 2.54 centimeters in an inch.
-// There are 100 centimeters in a meter, and thus 100 inches in 2.54 meters.
-// Since std::ratio can only hold whole numbers, the ratio will be 254 meters to 10000 inches.
-// We can simplify this down to 127 meters per 5000 inches.
-METAMEASURE_UNIT(Inches, Length, 127, 5000);
+// There are 100 centimeters for every 1 meter, and thus 100 inches for every 2.54 meters.
+// Since std::ratio can only hold whole numbers, the ratio will be 10000 inches to 254 meters.
+// We can simplify this down to 5000 inches per 127 meters.
+METAMEASURE_UNIT(Inches, Length, 5000, 127);
 
 }
 
