@@ -20,7 +20,7 @@ int main()
 If you need to do this for some reason, it's easy.
 
 ```cpp
-METAMEASURE_UNIT(Foo, Length, 2, 1); // For every 2 meters, there is 1 foo
+METAMEASURE_UNIT(Foo, MetaMeasure::Length, 2, 1); // For every 2 meters, there is 1 foo
 ```
 
 You can also easily create literals for your unit, like so:
