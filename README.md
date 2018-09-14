@@ -17,7 +17,7 @@ int main()
 ```
 
 # Creating your own units
-If you need to do this for some reason, it's easy. Just include Units.hpp!
+If you need to do this for some reason, it's easy.
 
 ```cpp
 METAMEASURE_UNIT(Foo, Length, 2, 1); // For every 2 meters, there is 1 foo
