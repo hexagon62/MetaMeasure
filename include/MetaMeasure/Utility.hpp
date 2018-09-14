@@ -7,6 +7,7 @@
 #include <ratio>
 #include <type_traits>
 
+// This is for compilers that warn about extra semi-colons, even though they're perfectly legal
 #define METAMEASURE_FORCE_SEMICOLON \
 extern void* MetaMeasureSemicolonForcer_
 
