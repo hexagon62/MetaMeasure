@@ -1,7 +1,7 @@
 #ifndef METAMEASURE_UTILITY_INCLUDED
 #define METAMEASURE_UTILITY_INCLUDED
 
-#include <MetaMeasure/Unit.hpp>
+#include <MetaMeasure/UnitBase.hpp>
 
 #include <tuple>
 #include <ratio>
