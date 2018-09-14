@@ -6,7 +6,6 @@
 
 namespace MetaMeasure
 {
-using OneToOne = std::ratio<1, 1>;
 using ExponentType = short;
 
 template<typename IdentifierT, ExponentType ExponentV = 1>
@@ -32,14 +31,29 @@ struct Current {};
 struct Luminosity {};
 struct SubstanceQuantity {};
 
+// This macro will make creating a unit much easier
+// See below for examples on how to use it
+#define METAMEASURE_UNIT(NAME, DIMENSION, RATIO_NUM, RATIO_DEN) \
+template<ExponentType Exponent = 1> \
+using NAME = Unit<Dimension<DIMENSION, Exponent>, std::ratio<RATIO_NUM, RATIO_DEN>>
+
 // SI base units; ratios are relative to these
-template<ExponentType Exponent = 1> using UnitMeters = Unit<Dimension<Length, Exponent>, OneToOne>;
-template<ExponentType Exponent = 1> using UnitKilograms = Unit<Dimension<Mass, Exponent>, std::kilo>;
-template<ExponentType Exponent = 1> using UnitSeconds = Unit<Dimension<Time, Exponent>, OneToOne>;
-template<ExponentType Exponent = 1> using UnitKelvins = Unit<Dimension<Temperature, Exponent>, OneToOne>;
-template<ExponentType Exponent = 1> using UnitAmperes = Unit<Dimension<Current, Exponent>, OneToOne>;
-template<ExponentType Exponent = 1> using UnitCandelas = Unit<Dimension<Luminosity, Exponent>, OneToOne>;
-template<ExponentType Exponent = 1> using UnitMoles = Unit<Dimension<SubstanceQuantity, Exponent>, OneToOne>;
+// I'm aware the base unit for mass is actually kilograms, but for the sake of simplicity, I'm using grams.
+// It wouldn't be nice to use std::nano to describe the ratio between micrograms and kilograms, would it?
+METAMEASURE_UNIT(UnitMeters, Length, 1, 1);
+METAMEASURE_UNIT(UnitGrams, Mass, 1, 1);
+METAMEASURE_UNIT(UnitSeconds, Time, 1, 1);
+METAMEASURE_UNIT(UnitKelvins, Temperature, 1, 1);
+METAMEASURE_UNIT(UnitAmperes, Current, 1, 1);
+METAMEASURE_UNIT(UnitCandelas, Luminosity, 1, 1);
+METAMEASURE_UNIT(UnitMoles, SubstanceQuantity, 1, 1);
+
+// Customary units
+// To give an example of how the conversion ratios work, there are exactly 2.54 centimeters in an inch.
+// There are 100 centimeters in a meter, and thus 100 inches in 2.54 meters.
+// Since std::ratio can only hold whole numbers, the ratio will be 254 meters to 10000 inches.
+// We can simplify this down to 127 meters per 5000 inches.
+METAMEASURE_UNIT(UnitInches, Length, 127, 5000);
 }
 
 #endif

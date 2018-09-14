@@ -101,12 +101,8 @@ public:
 template<typename Ratio>
 using Reciprocal = typename Reciprocal_<Ratio>::Type;
 
-// Extracts the exponent of the dimension from a unit
-template<typename T>
-struct ExponentOf
-{
-  static constexpr ExponentType Value = T::Dimension::Exponent;
-};
+// Helper ratio
+using OneToOne = std::ratio<1, 1>;
 
 // Calculates the unit's ratio to the base unit, accounting for the degree of the unit
 // When I say accounting for degree: there are 1000 m in 1 km, and 1000000 m² in 1 km²
@@ -179,33 +175,32 @@ struct OverallRatio_<std::tuple<T>>
 template<typename Tuple>
 using OverallRatio = typename OverallRatio_<Tuple>::Type;
 
+template<typename UnitTuple, typename UnitTuple2>
+using ConversionRatio = std::ratio_multiply<OverallRatio<UnitTuple>, OverallRatio<UnitTuple2>>;
 }
 
-template<typename NumT, typename UnitTuple>
+template<typename NumT, typename... Units>
 class Measurement
 {
-  using ThisType = Measurement<NumT, UnitTuple>;
+  using UnitTuple = std::tuple<Units...>;
+  using ThisType = Measurement<NumT, Units...>;
 
-  template<typename UnitTupleU>
+  template<typename... OtherUnits>
   using AllowAssignmentAndArithmetic = std::enable_if_t
   <
-    Private::SharesDimensions<UnitTuple, UnitTupleU>::value,
+    Private::SharesDimensions<UnitTuple, std::tuple<OtherUnits...>>::value,
     ThisType
   >;
 
-  template<typename UnitTupleU>
+  template<typename... OtherUnits>
   using AllowComparison = std::enable_if_t
   <
-    Private::IdenticalDimensions<UnitTuple, UnitTupleU>::value,
+    Private::IdenticalDimensions<UnitTuple, std::tuple<OtherUnits...>>::value,
     bool
   >;
 
-  template<typename UnitTupleU>
-  using TranslationRatio = std::ratio_multiply<Private::OverallRatio<UnitTuple>, Private::OverallRatio<UnitTupleU>>;
-
 public:
   using ValueType = NumT;
-  using Units = UnitTuple;
 
   Measurement() = default;
   Measurement(NumT value) : v(value) {}
@@ -213,19 +208,24 @@ public:
   const ValueType& value() const { return this->v; }
   ValueType& value() { return this->v; }
 
-  template<typename UnitTupleU>
-  AllowAssignmentAndArithmetic<UnitTupleU>& operator=(const Measurement<NumT, UnitTupleU>& r)
+  ThisType& operator=(const ThisType& other)
   {
-    this->v = r.value()*TranslationRatio<UnitTupleU>::num/TranslationRatio<UnitTupleU>::den;
-    this->copyDegrees(r.degrees());
-
+    this->v = other.value();
     return *this;
   }
 
-  template<typename UnitTupleU>
-  AllowComparison<UnitTupleU> operator<(const Measurement<NumT, UnitTupleU>& other)
+  template<typename... OtherUnits>
+  AllowAssignmentAndArithmetic<OtherUnits...>& operator=(const Measurement<NumT, OtherUnits...>& other)
   {
-    return this->value < other.value;
+    using ConversionRatio = Private::ConversionRatio<UnitTuple, std::tuple<OtherUnits...>>;
+    this->v = other.value()*ConversionRatio::den/ConversionRatio::num;
+    return *this;
+  }
+
+  template<typename... OtherUnits>
+  AllowComparison<OtherUnits...> operator<(const Measurement<NumT, OtherUnits...>& other)
+  {
+    return this->v < other.value();
   }
 
 private:
@@ -233,7 +233,7 @@ private:
 };
 
 template<typename NumT, ExponentType Exponent = 1>
-using Meters = Measurement<NumT, std::tuple<UnitMeters<Exponent>>>;
+using Meters = Measurement<NumT, UnitMeters<Exponent>>;
 
 }
 
