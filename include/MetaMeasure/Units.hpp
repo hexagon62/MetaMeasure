@@ -9,7 +9,8 @@
 template<MetaMeasure::ExponentType Exponent = 1> \
 using Unit##NAME = MetaMeasure::Unit<MetaMeasure::Dimension<DIMENSION, Exponent>, std::ratio<RATIO_NUM, RATIO_DEN>>; \
 template<typename NumT, MetaMeasure::ExponentType Exponent = 1> \
-using NAME = MetaMeasure::Measurement<NumT, Unit##NAME<Exponent>>;
+using NAME = MetaMeasure::Measurement<NumT, Unit##NAME<Exponent>>; \
+METAMEASURE_FORCE_SEMICOLON
 
 #ifndef METAMEASURE_LITERAL_LD_NUMBER_TYPE
 #define METAMEASURE_LITERAL_LD_NUMBER_TYPE long double
@@ -26,7 +27,8 @@ using NAME = MetaMeasure::Measurement<NumT, Unit##NAME<Exponent>>;
 UNIT<METAMEASURE_LITERAL_LD_NUMBER_TYPE, EXPONENT> operator"" SUFFIX (long double v) \
 { \
   return static_cast<METAMEASURE_LITERAL_LD_NUMBER_TYPE>(v); \
-}
+} \
+METAMEASURE_FORCE_SEMICOLON
 
 // Defines a literal for a unit which uses an unsigned long long int as its parameter
 // UNIT is the MetaMeasure::Measurement that will be returned
@@ -35,12 +37,14 @@ UNIT<METAMEASURE_LITERAL_LD_NUMBER_TYPE, EXPONENT> operator"" SUFFIX (long doubl
 UNIT<METAMEASURE_LITERAL_ULL_NUMBER_TYPE, EXPONENT> operator"" SUFFIX (unsigned long long int v) \
 { \
   return static_cast<METAMEASURE_LITERAL_ULL_NUMBER_TYPE>(v); \
-}
+} \
+METAMEASURE_FORCE_SEMICOLON
 
 // Combination of METAMEASURE_LITERAL_LD & METAMEASURE_LITERAL_ULL
 #define METAMEASURE_LITERAL(UNIT, EXPONENT, SUFFIX) \
 METAMEASURE_LITERAL_LD(UNIT, EXPONENT, SUFFIX); \
-METAMEASURE_LITERAL_ULL(UNIT, EXPONENT, SUFFIX);
+METAMEASURE_LITERAL_ULL(UNIT, EXPONENT, SUFFIX); \
+METAMEASURE_FORCE_SEMICOLON
 
 namespace MetaMeasure
 {
