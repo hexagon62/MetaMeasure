@@ -3,15 +3,15 @@
 
 #include <iostream>
 
-METAMEASURE_UNIT(HalfSeconds, MetaMeasure::Time, 1, 2);
-
 int main()
 {
   using namespace MetaMeasure;
+  using namespace MetaMeasure::MetricLiterals;
+  using namespace MetaMeasure::CustomaryLiterals;
 
-  Measurement<float, UnitMeters<1>, UnitSeconds<-1>> measurement = 1.f;
-  Measurement<float, UnitHalfSeconds<-1>, UnitInches<1>> measurement2 = measurement;
-  
-  std::cout << measurement2.value() << "\n";
+  Inches<long double> measurement = 5.0_m;
 
+  std::cout << measurement.value() << "\n";
+
+  system("pause"); // I'm testing it on Windows, give me a break
 }

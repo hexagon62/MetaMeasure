@@ -4,7 +4,7 @@
 namespace MetaMeasure
 {
 
-using ExponentType = short;
+using ExponentType = int;
 
 template<typename IdentifierT, ExponentType ExponentV = 1>
 struct Dimension

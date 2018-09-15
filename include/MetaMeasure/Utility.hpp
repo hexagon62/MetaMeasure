@@ -18,80 +18,93 @@ namespace Private
 {
 
 template<typename Tuple, typename Tuple2>
-struct LargerTuple_
-{
-  using Type = std::conditional_t
-  <
-    (std::tuple_size<Tuple>::value < std::tuple_size<Tuple2>::value),
-    Tuple2,
-    Tuple
-  >;
-};
-
-template<typename Tuple, typename Tuple2>
-struct SmallerTuple_
-{
-  using Type = std::conditional_t
-  <
-    (std::tuple_size<Tuple>::value < std::tuple_size<Tuple2>::value),
-    Tuple,
-    Tuple2
-  >;
-};
-
-template<typename Tuple, typename Tuple2>
-using LargerTuple = typename LargerTuple_<Tuple, Tuple2>::Type;
-
-template<typename Tuple, typename Tuple2>
-using SmallerTuple = typename SmallerTuple_<Tuple, Tuple2>::Type;
-
-// Checks if a Tuple has a dimension in it
-template<typename Dimension, typename Tuple>
-struct HasDimension_;
-
-template<typename Dimension>
-struct HasDimension_<Dimension, std::tuple<>> : std::false_type {};
-
-template<typename Dimension, typename U, typename... Ts>
-struct HasDimension_<Dimension, std::tuple<U, Ts...>> : std::conditional_t
+using LargerTuple = std::conditional_t
 <
-  std::is_same_v<Dimension, typename U::Dimension>,
-  std::true_type,
-  HasDimension_<Dimension, std::tuple<Ts...>>
-> {};
-
-template<typename Dimension, typename Tuple>
-using HasDimension = typename HasDimension_<Dimension, Tuple>::type;
+  (std::tuple_size<Tuple>::value < std::tuple_size<Tuple2>::value),
+  Tuple2,
+  Tuple
+>;
 
 template<typename Tuple, typename Tuple2>
-struct SharesDimensions_;
+using SmallerTuple = std::conditional_t
+<
+  (std::tuple_size<Tuple>::value < std::tuple_size<Tuple2>::value),
+  Tuple,
+  Tuple2
+>;
+
+// Convert tuple of units to tuple of dimensions
+template<typename Tuple>
+struct DimensionsTuple_;
+
+template<typename... Units>
+struct DimensionsTuple_<std::tuple<Units...>>
+{
+  using Type = std::tuple<typename Units::Dimension...>;
+};
 
 template<typename Tuple>
-struct SharesDimensions_<Tuple, std::tuple<>> : std::true_type {};
+using DimensionsTuple = typename DimensionsTuple_<Tuple>::Type;
 
-template<typename Tuple, typename U, typename... Ts>
-struct SharesDimensions_<Tuple, std::tuple<U, Ts...>> : std::conditional_t
+// Checks if a parameter pack has a type in it
+template<typename T, typename...>
+struct HasType;
+
+template<typename T>
+struct HasType<T> : std::false_type {};
+
+template<typename T, typename U, typename... Ts>
+struct HasType<T, U, Ts...> : std::conditional_t
 <
-  HasDimension<typename U::Dimension, Tuple>::value,
-  SharesDimensions_<Tuple, std::tuple<Ts...>>,
+  std::is_same_v<T, U>,
+  std::true_type,
+  HasType<T, Ts...>
+> {};
+
+// Check if Tuple2 only has types Tuple has
+template<typename Tuple, typename Tuple2>
+struct SharesTypes_;
+
+template<typename... Ts>
+struct SharesTypes_<std::tuple<Ts...>, std::tuple<>> : std::true_type {};
+
+template<typename... Ts, typename U, typename... Us>
+struct SharesTypes_<std::tuple<Ts...>, std::tuple<U, Us...>> : std::conditional_t
+<
+  HasType<U, Ts...>::value,
+  SharesTypes_<std::tuple<Ts...>, std::tuple<Us...>>,
   std::false_type
 > {};
 
-// Checks if Tuple and Tuple2 share dimensions
 template<typename Tuple, typename Tuple2>
-using SharesDimensions = typename SharesDimensions_
+using SharesTypes = SharesTypes_
 <
   LargerTuple<Tuple, Tuple2>,
   SmallerTuple<Tuple, Tuple2>
->::type;
+>;
 
-// Checks if Tuple and Tuple2 have the same exact dimensions
 template<typename Tuple, typename Tuple2>
-using IdenticalDimensions = typename SharesDimensions_
+using IdenticalTypes = SharesTypes_
 <
   SmallerTuple<Tuple, Tuple2>,
   LargerTuple<Tuple, Tuple2>
->::type;
+>;
+
+// Checks if Tuple and Tuple2 share dimensions
+template<typename Tuple, typename Tuple2>
+struct SharesDimensions : SharesTypes
+<
+  DimensionsTuple<Tuple>,
+  DimensionsTuple<Tuple2>
+> {};
+
+// Checks if Tuple and Tuple2 have the same exact dimensions
+template<typename Tuple, typename Tuple2>
+struct IdenticalDimensions : IdenticalTypes
+<
+  DimensionsTuple<Tuple>,
+  DimensionsTuple<Tuple2>
+> {};
 
 // Checks if parameter pack has exactly one of a type
 template<typename...>

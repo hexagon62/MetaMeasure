@@ -68,7 +68,7 @@ METAMEASURE_UNIT(Amperes, Current, 1, 1);
 METAMEASURE_UNIT(Candelas, Luminosity, 1, 1);
 METAMEASURE_UNIT(Moles, SubstanceQuantity, 1, 1);
 
-namespace Literals
+namespace MetricLiterals
 {
 
 METAMEASURE_LITERAL(Meters, 1, _m);
@@ -87,6 +87,13 @@ METAMEASURE_LITERAL(Moles, 1, _mol);
 // Since std::ratio can only hold whole numbers, the ratio will be 10000 inches to 254 meters.
 // We can simplify this down to 5000 inches per 127 meters.
 METAMEASURE_UNIT(Inches, Length, 5000, 127);
+
+namespace CustomaryLiterals
+{
+
+METAMEASURE_LITERAL(Inches, 1, _in);
+
+}
 
 }
 
