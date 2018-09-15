@@ -16,7 +16,14 @@ namespace MetaMeasure
 
 namespace Private
 {
+// Gets the exponent of a unit's dimension
+template<typename T>
+struct ExponentOf
+{
+  static constexpr ExponentType Value = T::Dimension::Exponent;
+};
 
+// Evaluates to the tuple that's larger
 template<typename Tuple, typename Tuple2>
 using LargerTuple = std::conditional_t
 <
@@ -25,6 +32,7 @@ using LargerTuple = std::conditional_t
   Tuple
 >;
 
+// Evaluates to the tuple that's smaller
 template<typename Tuple, typename Tuple2>
 using SmallerTuple = std::conditional_t
 <
@@ -45,6 +53,19 @@ struct DimensionsTuple_<std::tuple<Units...>>
 
 template<typename Tuple>
 using DimensionsTuple = typename DimensionsTuple_<Tuple>::Type;
+
+// Convert tuple of units to tuple of dimension identifiers
+template<typename Tuple>
+struct IdentifierTuple_;
+
+template<typename... Units>
+struct IdentifierTuple_<std::tuple<Units...>>
+{
+  using Type = std::tuple<typename Units::Dimension::Identifier...>;
+};
+
+template<typename Tuple>
+using IdentifierTuple = typename IdentifierTuple_<Tuple>::Type;
 
 // Checks if a parameter pack has a type in it
 template<typename T, typename...>
@@ -168,16 +189,16 @@ template<typename T, typename = std::true_type>
 struct UnitRatio_;
 
 template<typename T>
-struct UnitRatio_<T, std::integral_constant<bool, (T::Dimension::Exponent == 0)>>
+struct UnitRatio_<T, std::integral_constant<bool, (ExponentOf<T>::Value == 0)>>
 {
   using Type = OneToOne;
 };
 
 template<typename T>
-struct UnitRatio_<T, std::integral_constant<bool, (T::Dimension::Exponent > 0)>>
+struct UnitRatio_<T, std::integral_constant<bool, (ExponentOf<T>::Value > 0)>>
 {
 private:
-  using NextDimension = Dimension<typename T::Dimension::Identifier, (T::Dimension::Exponent - 1)>;
+  using NextDimension = Dimension<typename T::Dimension::Identifier, (ExponentOf<T>::Value - 1)>;
   using Ratio = typename T::Ratio;
   using NextUnit = Unit<NextDimension, Ratio>;
 
@@ -187,10 +208,10 @@ public:
 };
 
 template<typename T>
-struct UnitRatio_<T, std::integral_constant<bool, (T::Dimension::Exponent < 0)>>
+struct UnitRatio_<T, std::integral_constant<bool, (ExponentOf<T>::Value < 0)>>
 {
 private:
-  using NextDimension = Dimension<typename T::Dimension::Identifier, (-T::Dimension::Exponent)>;
+  using NextDimension = Dimension<typename T::Dimension::Identifier, (-ExponentOf<T>::Value)>;
   using Ratio = typename T::Ratio;
   using NextUnit = Unit<NextDimension, Ratio>;
 
@@ -234,6 +255,131 @@ using OverallRatio = typename OverallRatio_<Tuple>::Type;
 
 template<typename UnitTuple, typename UnitTuple2>
 using ConversionRatio = std::ratio_divide<OverallRatio<UnitTuple>, OverallRatio<UnitTuple2>>;
+
+// The result of a tuple concatenation
+template<typename... Ts>
+using TupleCat = decltype(std::tuple_cat(std::declval<Ts>()...));
+
+// Removes all dimensions that have degree 0 in Tuple
+template<typename Tuple>
+struct RemoveZeroDimensions_;
+
+template<>
+struct RemoveZeroDimensions_<std::tuple<>>
+{
+  using Type = std::tuple<>;
+};
+
+template<typename T, typename... Ts>
+struct RemoveZeroDimensions_<std::tuple<T, Ts...>>
+{
+  using Type = TupleCat
+  <
+    std::conditional_t
+    <
+      (ExponentOf<T>::Value == 0),
+      std::tuple<>,
+      std::tuple<T>
+    >,
+    typename RemoveZeroDimensions_<std::tuple<Ts...>>::Type
+  >;
+};
+
+template<typename Tuple>
+using RemoveZeroDimensions = typename RemoveZeroDimensions_<Tuple>::Type;
+
+// Multiplies a single dimension from Tuple by T
+template<typename Tuple, typename T>
+struct MultiplyDimension_;
+
+template<typename T>
+struct MultiplyDimension_<std::tuple<>, T>
+{
+  using Type = std::tuple<>;
+};
+
+template<typename T, typename U, typename... Us>
+struct MultiplyDimension_<std::tuple<U, Us...>, T>
+{
+private:
+  static constexpr bool SameDimension = std::is_same_v
+  <
+    typename T::Dimension::Identifier,
+    typename U::Dimension::Identifier
+  >;
+
+  using MultipliedDimension = Dimension
+  <
+    typename T::Dimension::Identifier,
+    (ExponentOf<T>::Value + ExponentOf<U>::Value)
+  >;
+
+  using MultipliedUnit = Unit
+  <
+    MultipliedDimension,
+    typename T::Ratio
+  >;
+
+public:
+  using Type = TupleCat
+  <
+    std::conditional_t
+    <
+      SameDimension,
+      std::tuple<MultipliedUnit>,
+      std::tuple<T>
+    >,
+    typename MultiplyDimension_<std::tuple<Us...>, T>::Type
+  >;
+};
+
+template<typename Tuple, typename T>
+using MultiplyDimension = typename MultiplyDimension_<Tuple, T>::Type;
+
+// Multiplies Tuple's dimensions by Tuple2's dimensions
+template<typename Tuple, typename Tuple2>
+struct MultiplyDimensions_;
+
+template<typename... Ts>
+struct MultiplyDimensions_ <std::tuple<Ts...>, std::tuple<>>
+{
+  using Type = std::tuple<Ts...>;
+};
+
+template<typename... Ts, typename U, typename... Us>
+struct MultiplyDimensions_<std::tuple<Ts...>, std::tuple<U, Us...>>
+{
+private:
+  static constexpr bool TupleHasDimension = HasType
+  <
+    typename U::Dimension::Identifier,
+    typename Ts::Dimension::Identifier...
+  >::value;
+
+public:
+  using Type = typename MultiplyDimensions_
+  <
+    std::conditional_t
+    <
+      TupleHasDimension,
+      MultiplyDimension<std::tuple<Ts...>, U>,
+      TupleCat<std::tuple<Ts...>, std::tuple<U>>
+    >,
+    std::tuple<Us...>
+  >::Type;
+};
+
+template<typename Tuple, typename Tuple2>
+using MultiplyDimensions = RemoveZeroDimensions
+<
+  typename MultiplyDimensions_
+  <
+    LargerTuple<Tuple, Tuple2>,
+    SmallerTuple<Tuple, Tuple2>
+  >::Type
+>;
+
+// Divides Tuple's dimensions by Tuple2's dimensions
 
 }
 

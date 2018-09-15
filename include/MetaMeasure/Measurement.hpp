@@ -7,11 +7,31 @@ namespace MetaMeasure
 {
 
 template<typename NumT, typename... Units>
+class Measurement;
+
+namespace Private
+{
+
+template<typename NumT, typename Tuple>
+struct MeasurementThroughTuple_;
+
+template<typename NumT, typename... Ts>
+struct MeasurementThroughTuple_<NumT, std::tuple<Ts...>>
+{
+  using Type = Measurement<NumT, Ts...>;
+};
+
+template<typename NumT, typename Tuple>
+using MeasurementThroughTuple = typename MeasurementThroughTuple_<NumT, Tuple>::Type;
+
+}
+
+template<typename NumT, typename... Units>
 class Measurement
 {
 public:
   using ValueType = NumT;
-  using UnitTuple = std::tuple<Units...>;
+  using UnitTuple = Private::RemoveZeroDimensions<std::tuple<Units...>>;
 
 private:
   using ThisType = Measurement<ValueType, Units...>;
@@ -48,7 +68,11 @@ private:
     T
   >;
 
+  template<typename M>
+  using Product = Private::MeasurementThroughTuple<ValueType, Private::MultiplyDimensions<UnitTuple, typename M::UnitTuple>>;
+
 public:
+
   constexpr Measurement() = default;
   constexpr Measurement(NumT value) : v(value) {}
 
@@ -59,8 +83,8 @@ public:
 
   // If you error at this constructor,
   // Chances are you tried to copy construct from a measurement without identical dimensions.
-  template<typename NumU, typename... Units>
-  constexpr Measurement(const Measurement<NumU, Units...>& other)
+  template<typename NumU, typename... UnitsU>
+  constexpr Measurement(const Measurement<NumU, UnitsU...>& other)
     : v(ThisType::convertedValueOf(other))
   {}
 
@@ -77,6 +101,12 @@ public:
   constexpr IfConvertible<M, ThisType> operator-(const M& other)
   {
     return this->v - ThisType::convertedValueOf(other);
+  }
+
+  template<typename NumU, typename... UnitsU>
+  constexpr Product<Measurement<NumU, UnitsU...>> operator*(const Measurement<NumU, UnitsU...>& other)
+  {
+    return this->v * ThisType::valueOf(other);
   }
 
   template<typename NumU>
@@ -179,7 +209,7 @@ private:
 
   // This is so I don't have to check if METAMEASURE_SUPPRESS_CONVERSION_WARNINGS is defined more than I need to
   template<typename M>
-  static constexpr IfConvertible<M, ValueType> valueOf(const M& other)
+  static constexpr ValueType valueOf(const M& other)
   {
 #ifdef METAMEASURE_SUPPRESS_CONVERSION_WARNINGS
     return static_cast<ValueType>(other.value());

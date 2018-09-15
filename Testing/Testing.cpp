@@ -52,4 +52,12 @@ int main()
   out << "x/2 = " << (x / 2.L).value() << " m; should be 5 m" << std::endl;
   out << "y/2 = " << (y / 2.L).value() << " in; should be 6 in" << std::endl;
   out << std::endl;
+
+  auto e = 10.0_A * 2.0_s;
+  out << "Testing division of measurements with different dimensions:" << std::endl;
+  out << "e = " << e.value() << " C; should be 20 C" << std::endl;
+
+  e += 10.0_A * 1.0_s;
+  out << "Testing addition of measurement with more than one unit:" << std::endl;
+  out << "e = " << e.value() << " C; should be 30 C" << std::endl;
 }
