@@ -80,8 +80,8 @@ int main()
   out << std::endl;
 
   Seconds<long double, -1> freq = 1_kHz;
-  auto i = h*freq;
+  auto i = 2*h*freq;
   out << "Testing hertz literal:" << std::endl;
-  out << "i = " << i.value() << "m^3*Hz; should be 1000 m^3*Hz" << std::endl;
+  out << "i = " << i.value() << " m^3*Hz; should be 2000 m^3*Hz" << std::endl;
   out << std::endl;
 }

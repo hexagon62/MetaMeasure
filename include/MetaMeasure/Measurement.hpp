@@ -137,9 +137,21 @@ public:
   }
 
   template<typename NumU>
+  friend constexpr ThisType operator*(const NumU& factor, const ThisType& r)
+  {
+    return r.v * factor;
+  }
+
+  template<typename NumU>
   constexpr ThisType operator/(const NumU& factor)
   {
     return this->v / factor;
+  }
+
+  template<typename NumU>
+  friend constexpr ThisType operator/(const NumU& factor, const ThisType& r)
+  {
+    return r.v * factor;
   }
 
   constexpr ThisType operator-()

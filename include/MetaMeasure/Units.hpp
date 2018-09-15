@@ -197,6 +197,7 @@ namespace MetaMeasure
 // SI base units; ratios are relative to these
 // I'm aware the base unit for mass is actually kilograms, but for the sake of simplicity, I'm using grams.
 // It wouldn't be nice to use std::nano to describe the ratio between micrograms and kilograms, would it?
+
 METAMEASURE_UNIT(Meters,   Length,            1, 1);
 METAMEASURE_UNIT(Grams,    Mass,              1, 1);
 METAMEASURE_UNIT(Seconds,  Time,              1, 1);
