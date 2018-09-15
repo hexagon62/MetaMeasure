@@ -233,7 +233,7 @@ template<typename Tuple>
 using OverallRatio = typename OverallRatio_<Tuple>::Type;
 
 template<typename UnitTuple, typename UnitTuple2>
-using ConversionRatio = std::ratio_multiply<OverallRatio<UnitTuple>, OverallRatio<UnitTuple2>>;
+using ConversionRatio = std::ratio_divide<OverallRatio<UnitTuple>, OverallRatio<UnitTuple2>>;
 
 }
 
