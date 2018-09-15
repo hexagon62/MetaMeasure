@@ -67,9 +67,38 @@ public:
   constexpr const ValueType& value() const { return this->v; }
 
   // Arithmetic operators
+  template<typename M>
+  constexpr IfConvertible<M, ThisType> operator+(const M& other)
+  {
+    return this->v + ThisType::convertedValueOf(other);
+  }
+
+  template<typename M>
+  constexpr IfConvertible<M, ThisType> operator-(const M& other)
+  {
+    return this->v - ThisType::convertedValueOf(other);
+  }
+
+  template<typename NumU>
+  constexpr ThisType operator*(const NumU& factor)
+  {
+    return this->v * factor;
+  }
+
+  template<typename NumU>
+  constexpr ThisType operator/(const NumU& factor)
+  {
+    return this->v / factor;
+  }
+
   constexpr ThisType operator-()
   {
     return -this->v;
+  }
+
+  constexpr ThisType operator+()
+  {
+    return +this->v;
   }
 
   // Assignment operators
