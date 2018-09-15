@@ -42,8 +42,12 @@ private:
   static_assert(Private::HasNoDuplicates<UnitTuple>::Value,
                 "Measurement has 2 or more units of the same dimension.");
 
+  using IdenticalEnabledType = int;
+  using ConvertibleEnabledType = long;
+  using OnlyConvertibleEnabledType = short;
+
   // If the measurement has the same units and dimensions, overloads that use this type may be called
-  template<typename M, typename T = M>
+  template<typename M, typename T = IdenticalEnabledType>
   using IfIdentical = std::enable_if_t
   <
     Private::IdenticalTypes<UnitTuple, typename M::UnitTuple>::value,
@@ -51,7 +55,7 @@ private:
   >;
 
   // If the measurements have the same dimensions, overloads that use this type may be called
-  template<typename M, typename T = M>
+  template<typename M, typename T = ConvertibleEnabledType>
   using IfConvertible = std::enable_if_t
   <
     Private::IdenticalDimensions<UnitTuple, typename M::UnitTuple>::value,
@@ -60,53 +64,70 @@ private:
 
   // If the measurements have the same dimensions, but not the same units
   // Overloads that use this type may be called
-  template<typename M, typename T = M>
-  using OnlyIfConvertible = std::enable_if_t
+  template<typename M, typename T = OnlyConvertibleEnabledType>
+  using IfOnlyConvertible = std::enable_if_t
   <
     (Private::IdenticalDimensions<UnitTuple, typename M::UnitTuple>::value &&
      !Private::IdenticalTypes<UnitTuple, typename M::UnitTuple>::value),
     T
   >;
 
-  template<typename M>
-  using Product = Private::MeasurementThroughTuple<ValueType, Private::MultiplyDimensions<UnitTuple, typename M::UnitTuple>>;
+  template<typename... Units>
+  using Product = Private::MeasurementThroughTuple
+  <
+    ValueType,
+    Private::MultiplyDimensions<UnitTuple, std::tuple<Units...>>
+  >;
+
+  template<typename... Units>
+  using Quotient = Private::MeasurementThroughTuple
+  <
+    ValueType,
+    Private::DivideDimensions<UnitTuple, std::tuple<Units...>>
+  >;
 
 public:
 
   constexpr Measurement() = default;
   constexpr Measurement(NumT value) : v(value) {}
 
-  template<typename M>
-  constexpr Measurement(const IfIdentical<M>& other)
+  template<typename M, IfIdentical<M> = 0>
+  constexpr Measurement(const M& other)
     : v(ThisType::valueOf(other))
   {}
 
   // If you error at this constructor,
   // Chances are you tried to copy construct from a measurement without identical dimensions.
-  template<typename NumU, typename... UnitsU>
-  constexpr Measurement(const Measurement<NumU, UnitsU...>& other)
+  template<typename M, IfOnlyConvertible<M> = 0>
+  constexpr Measurement(const M& other)
     : v(ThisType::convertedValueOf(other))
   {}
 
   constexpr const ValueType& value() const { return this->v; }
 
   // Arithmetic operators
-  template<typename M>
-  constexpr IfConvertible<M, ThisType> operator+(const M& other)
+  template<typename M, IfConvertible<M> = 0>
+  constexpr ThisType operator+(const M& other)
   {
     return this->v + ThisType::convertedValueOf(other);
   }
 
-  template<typename M>
-  constexpr IfConvertible<M, ThisType> operator-(const M& other)
+  template<typename M, IfConvertible<M> = 0>
+  constexpr ThisType operator-(const M& other)
   {
     return this->v - ThisType::convertedValueOf(other);
   }
 
   template<typename NumU, typename... UnitsU>
-  constexpr Product<Measurement<NumU, UnitsU...>> operator*(const Measurement<NumU, UnitsU...>& other)
+  constexpr Product<UnitsU...> operator*(const Measurement<NumU, UnitsU...>& other)
   {
     return this->v * ThisType::valueOf(other);
+  }
+
+  template<typename NumU, typename... UnitsU>
+  constexpr Quotient<UnitsU...> operator/(const Measurement<NumU, UnitsU...>& other)
+  {
+    return this->v / ThisType::valueOf(other);
   }
 
   template<typename NumU>
@@ -132,22 +153,22 @@ public:
   }
 
   // Assignment operators
-  template<typename M>
-  constexpr IfConvertible<M, ThisType>& operator=(const M& other)
+  template<typename M, IfConvertible<M> = 0>
+  constexpr ThisType& operator=(const M& other)
   {
     this->v = ThisType::convertedValueOf(other);
     return *this;
   }
 
-  template<typename M>
-  constexpr IfConvertible<M, ThisType>& operator+=(const M& other)
+  template<typename M, IfConvertible<M> = 0>
+  constexpr ThisType& operator+=(const M& other)
   {
     this->v += ThisType::convertedValueOf(other);
     return *this;
   }
 
-  template<typename M>
-  constexpr IfConvertible<M, ThisType>& operator-=(const M& other)
+  template<typename M, IfConvertible<M> = 0>
+  constexpr ThisType& operator-=(const M& other)
   {
     this->v -= ThisType::convertedValueOf(other);
     return *this;
@@ -168,38 +189,38 @@ public:
   }
 
   // Comparison operators
-  template<typename M>
-  constexpr IfConvertible<M, bool> operator<(const M& other)
+  template<typename M, IfConvertible<M> = 0>
+  constexpr bool operator<(const M& other)
   {
     return this->v < ThisType::convertedValueOf(other);
   }
 
-  template<typename M>
-  constexpr IfConvertible<M, bool> operator>(const M& other)
+  template<typename M, IfConvertible<M> = 0>
+  constexpr bool operator>(const M& other)
   {
     return this->v > ThisType::convertedValueOf(other);
   }
 
-  template<typename M>
-  constexpr IfConvertible<M, bool> operator<=(const M& other)
+  template<typename M, IfConvertible<M> = 0>
+  constexpr bool operator<=(const M& other)
   {
     return this->v <= ThisType::convertedValueOf(other);
   }
 
-  template<typename M>
-  constexpr IfConvertible<M, bool> operator>=(const M& other)
+  template<typename M, IfConvertible<M> = 0>
+  constexpr bool operator>=(const M& other)
   {
     return this->v >= ThisType::convertedValueOf(other);
   }
 
-  template<typename M>
-  constexpr IfConvertible<M, bool> operator==(const M& other)
+  template<typename M, IfConvertible<M> = 0>
+  constexpr bool operator==(const M& other)
   {
     return this->v < ThisType::valueOf(other);
   }
 
-  template<typename M>
-  constexpr IfConvertible<M, bool> operator!=(const M& other)
+  template<typename M, IfConvertible<M> = 0>
+  constexpr bool operator!=(const M& other)
   {
     return this->v < ThisType::valueOf(other);
   }
@@ -218,8 +239,8 @@ private:
 #endif
   }
 
-  template<typename M>
-  static constexpr IfConvertible<M, ValueType> convertedValueOf(const M& other)
+  template<typename M, IfConvertible<M> = 0>
+  static constexpr ValueType convertedValueOf(const M& other)
   {
     using ConversionRatio = Private::ConversionRatio<UnitTuple, typename M::UnitTuple>;
     return ThisType::valueOf(other)*ConversionRatio::num / ConversionRatio::den;

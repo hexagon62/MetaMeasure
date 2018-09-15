@@ -54,10 +54,34 @@ int main()
   out << std::endl;
 
   auto e = 10.0_A * 2.0_s;
-  out << "Testing division of measurements with different dimensions:" << std::endl;
+  out << "Testing multiplication of measurements with different dimensions:" << std::endl;
   out << "e = " << e.value() << " C; should be 20 C" << std::endl;
+  out << std::endl;
 
   e += 1.0_daA * 1.0_s;
   out << "Testing addition of measurement with more than one unit:" << std::endl;
   out << "e = " << e.value() << " C; should be 30 C" << std::endl;
+  out << std::endl;
+
+  auto f = 5.0_m / 2.0_s;
+  out << "Testing division of measurements with different dimensions:" << std::endl;
+  out << "f = " << f.value() << " m/s; should be 2.5 m/s" << std::endl;
+  out << std::endl;
+
+  f -= 10.0_cm / 1.0_s;
+  out << "Testing subtraction of measurement with more than one unit:" << std::endl;
+  out << "f = " << f.value() << " m/s; should be 2.4 m/s" << std::endl;
+  out << std::endl;
+
+  Meters<long double> g = 10.0_m;
+  Meters<long double, 3> h = g*g*g;
+  out << "Testing multiplying a measurement by iself:" << std::endl;
+  out << "h = " << g.value() << " m^3; should be 1000 m^3" << std::endl;
+  out << std::endl;
+
+  Seconds<long double, -1> freq = 1_kHz;
+  auto i = h*freq;
+  out << "Testing hertz literal:" << std::endl;
+  out << "i = " << i.value() << "m^3*Hz; should be 1000 m^3*Hz" << std::endl;
+  out << std::endl;
 }

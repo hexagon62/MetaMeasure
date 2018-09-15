@@ -288,6 +288,30 @@ struct RemoveZeroDimensions_<std::tuple<T, Ts...>>
 template<typename Tuple>
 using RemoveZeroDimensions = typename RemoveZeroDimensions_<Tuple>::Type;
 
+// Take the reciprocal of the dimensions
+// For instance, time (s) becomes 1/time (Hz)
+template<typename Tuple>
+struct ReciprocalDimensions_;
+
+template<>
+struct ReciprocalDimensions_<std::tuple<>>
+{
+  using Type = std::tuple<>;
+};
+
+template<typename T, typename... Ts>
+struct ReciprocalDimensions_<std::tuple<T, Ts...>>
+{
+  using Type = TupleCat
+  <
+    Dimension<typename T::Dimension::Identifier, (-ExponentOf<T>::Value)>,
+    typename ReciprocalDimensions_<std::tuple<Ts...>>::Type
+  >;
+};
+
+template<typename Tuple>
+using ReciprocalDimensions = typename ReciprocalDimensions_<Tuple>::Type;
+
 // Multiplies a single dimension from Tuple by T
 template<typename Tuple, typename T>
 struct MultiplyDimension_;
@@ -372,14 +396,19 @@ public:
 template<typename Tuple, typename Tuple2>
 using MultiplyDimensions = RemoveZeroDimensions
 <
+  typename MultiplyDimensions_<Tuple, Tuple2>::Type
+>;
+
+// Divides Tuple's dimensions by Tuple2's dimensions
+template<typename Tuple, typename Tuple2>
+using DivideDimensions = RemoveZeroDimensions
+<
   typename MultiplyDimensions_
   <
     LargerTuple<Tuple, Tuple2>,
     SmallerTuple<Tuple, Tuple2>
   >::Type
 >;
-
-// Divides Tuple's dimensions by Tuple2's dimensions
 
 }
 
