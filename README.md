@@ -15,6 +15,22 @@ int main()
   std::cout << measurement.value() << " m = " << measurement2.value() << " in\n";
 }
 ```
+# Simple example of dimensional analysis
+```cpp
+// Just typedef away the ugly stuff
+template<typename T>
+using Velocity = MetaMeasure::Measurement<T, MetaMeasure::UnitMeters<1>, MetaMeasure::UnitSeconds<-1>>;
+
+template<typename T>
+MetaMeasure::Meters<T> distanceTravelled(Velocity<T> vel, MetaMeasure::Seconds<T> time)
+{
+  return vel*time;
+}
+```
+# Using literals
+```cpp
+auto volume = 5_m*3_m*2_m; // 30 m³
+```
 
 # Creating your own units
 If you need to do this for some reason, it's easy.
