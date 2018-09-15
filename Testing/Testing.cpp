@@ -20,13 +20,13 @@ int main()
   out << std::endl;
 
   out << "Testing multiplication of measurements by a factor:" << std::endl;
-  out << "x*2 = " << (x*2.l).value() << " m; should be 20 m" << std::endl;
-  out << "y*2 = " << (y*2.l).value() << " in; should be 24 in" << std::endl;
+  out << "x*2 = " << (x * 2.L).value() << " m; should be 20 m" << std::endl;
+  out << "y*2 = " << (y * 2.L).value() << " in; should be 24 in" << std::endl;
   out << std::endl;
 
   out << "Testing division of measurements by a factor:" << std::endl;
-  out << "x/2 = " << (x/2.l).value() << " m; should be 5 m" << std::endl;
-  out << "y/2 = " << (y/2.l).value() << " in; should be 6 in" << std::endl;
+  out << "x/2 = " << (x / 2.L).value() << " m; should be 5 m" << std::endl;
+  out << "y/2 = " << (y / 2.L).value() << " in; should be 6 in" << std::endl;
   out << std::endl;
 
   auto a = x;
@@ -49,7 +49,7 @@ int main()
   out << "d = " << d.value() << " m; should be 0.3048 m" << std::endl;
 
   out << "Testing division of measurements by a factor:" << std::endl;
-  out << "x/2 = " << (x / 2.l).value() << " m; should be 5 m" << std::endl;
-  out << "y/2 = " << (y / 2.l).value() << " in; should be 6 in" << std::endl;
+  out << "x/2 = " << (x / 2.L).value() << " m; should be 5 m" << std::endl;
+  out << "y/2 = " << (y / 2.L).value() << " in; should be 6 in" << std::endl;
   out << std::endl;
 }
