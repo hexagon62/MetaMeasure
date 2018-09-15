@@ -57,7 +57,7 @@ int main()
   out << "Testing division of measurements with different dimensions:" << std::endl;
   out << "e = " << e.value() << " C; should be 20 C" << std::endl;
 
-  e += 10.0_A * 1.0_s;
+  e += 1.0_daA * 1.0_s;
   out << "Testing addition of measurement with more than one unit:" << std::endl;
   out << "e = " << e.value() << " C; should be 30 C" << std::endl;
 }

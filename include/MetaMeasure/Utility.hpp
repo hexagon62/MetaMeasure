@@ -14,6 +14,9 @@ extern void* MetaMeasureSemicolonForcer_
 namespace MetaMeasure
 {
 
+// Helper ratio
+using OneToOne = std::ratio<1, 1>;
+
 namespace Private
 {
 // Gets the exponent of a unit's dimension
@@ -178,9 +181,6 @@ public:
 
 template<typename Ratio>
 using Reciprocal = typename Reciprocal_<Ratio>::Type;
-
-// Helper ratio
-using OneToOne = std::ratio<1, 1>;
 
 // Calculates the unit's ratio to the base unit, accounting for the degree of the unit
 // When I say accounting for degree: there are 1000 m in 1 km, and 1000000 m² in 1 km²
