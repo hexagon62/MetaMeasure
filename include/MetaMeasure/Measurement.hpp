@@ -221,7 +221,7 @@ private:
   template<typename M>
   static constexpr IfConvertible<M, ValueType> convertedValueOf(const M& other)
   {
-    using ConversionRatio = Private::ConversionRatio<UnitTuple, M::UnitTuple>;
+    using ConversionRatio = Private::ConversionRatio<UnitTuple, typename M::UnitTuple>;
     return ThisType::valueOf(other)*ConversionRatio::num / ConversionRatio::den;
   }
 };
