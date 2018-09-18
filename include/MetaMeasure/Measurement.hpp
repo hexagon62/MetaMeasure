@@ -126,13 +126,17 @@ public:
   template<typename NumU, typename... UnitsU>
   constexpr Product<UnitsU...> operator*(const Measurement<NumU, UnitsU...>& other)
   {
-    return this->v * ThisType::valueOf(other);
+    using M = Measurement<NumU, UnitsU...>;
+    using ConversionRatio = Private::ConversionRatio<UnitTuple, typename M::UnitTuple>;
+    return (this->v * ThisType::valueOf(other)) * ConversionRatio::num / ConversionRatio::den;
   }
 
   template<typename NumU, typename... UnitsU>
   constexpr Quotient<UnitsU...> operator/(const Measurement<NumU, UnitsU...>& other)
   {
-    return this->v / ThisType::valueOf(other);
+    using M = Measurement<NumU, UnitsU...>;
+    using ConversionRatio = Private::ConversionRatio<UnitTuple, typename M::UnitTuple>;
+    return (this->v * ConversionRatio::den)  / (ThisType::valueOf(other) * ConversionRatio::num);
   }
 
   template<typename NumU>
@@ -256,7 +260,7 @@ private:
 #endif
   }
 
-  template<typename M, IfConvertible<M> = 0>
+  template<typename M>
   static constexpr ValueType convertedValueOf(const M& other)
   {
     using ConversionRatio = Private::ConversionRatio<UnitTuple, typename M::UnitTuple>;

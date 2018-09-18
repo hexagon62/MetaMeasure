@@ -2,6 +2,7 @@
 #include <MetaMeasure.hpp>
 
 #include <fstream>
+#include <complex>
 
 template<typename T>
 using Velocity = MetaMeasure::Measurement<T, MetaMeasure::UnitMeters<1>, MetaMeasure::UnitSeconds<-1>>;
@@ -98,8 +99,21 @@ int main()
   out << "result = " << distanceTravelled<long double>(5_m/1_s, 10_s).value() << " m; should be 50 m" << std::endl;
   out << std::endl;
 
-  auto j = 5_m / 2_m;
+  auto j = 5_m / 1_mm;
   out << "Testing cancelling out units through division:" << std::endl;
-  out << "j = " << j << "; should be 2.5" << std::endl; // note the lack of .value(), this is because j is just a normal number
+  out << "j = " << j << "; should be 5000" << std::endl; // note the lack of .value(), this is because j is just a normal number
+  out << std::endl;
+
+  auto k = 5.0_m * 1.0_mm;
+  out << "Testing conversion during multiplication:" << std::endl;
+  out << "k = " << k.value() << " m^2; should be 0.005 m^2" << std::endl;
+  out << std::endl;
+
+  Seconds<std::complex<float>, 1> im = std::complex<float>(2.f, 1.f);
+  auto im2 = im/2.f;
+
+  out << "Testing std::complex usage:" << std::endl;
+  out << "im = " << im.value().real() << " + " << im.value().imag() << "i s; should be 2 + 1i s" << std::endl;
+  out << "im2 = " << im2.value().real() << " + " << im2.value().imag() << "i s; should be 1 + 0.5i s" << std::endl;
   out << std::endl;
 }
