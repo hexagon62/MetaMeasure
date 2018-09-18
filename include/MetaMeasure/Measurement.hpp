@@ -18,7 +18,12 @@ struct MeasurementThroughTuple_;
 template<typename NumT, typename... Ts>
 struct MeasurementThroughTuple_<NumT, std::tuple<Ts...>>
 {
-  using Type = Measurement<NumT, Ts...>;
+  using Type = std::conditional_t
+  <
+    (sizeof...(Ts) == 0),
+    NumT,
+    Measurement<NumT, Ts...>
+  >;
 };
 
 template<typename NumT, typename Tuple>

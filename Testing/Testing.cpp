@@ -99,6 +99,6 @@ int main()
   out << std::endl;
 
   auto wut = 5_m/5_m;
-  out << wut.value() << std::endl;
+  out << wut << std::endl;
   out << std::endl;
 }
