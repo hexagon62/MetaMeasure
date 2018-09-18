@@ -97,4 +97,8 @@ int main()
   out << "Testing passing stuff to function:" << std::endl;
   out << "result = " << distanceTravelled<long double>(5_m/1_s, 10_s).value() << " m; should be 50 m" << std::endl;
   out << std::endl;
+
+  auto wut = 5_m/5_m;
+  out << wut.value() << std::endl;
+  out << std::endl;
 }

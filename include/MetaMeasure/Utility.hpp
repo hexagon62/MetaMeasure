@@ -399,12 +399,13 @@ public:
 };
 
 template<typename Tuple, typename Tuple2>
-using MultiplyDimensions = 
+using MultiplyDimensions = RemoveZeroDimensions<
   typename MultiplyDimensions_
   <
     LargerTuple<Tuple, Tuple2>,
     SmallerTuple<Tuple, Tuple2>
-  >::Type;
+  >::Type
+>;
 
 // Divides Tuple's dimensions by Tuple2's dimensions
 template<typename Tuple, typename Tuple2>
