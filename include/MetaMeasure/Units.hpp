@@ -5,6 +5,16 @@
 
 #include <cstddef>
 
+namespace MetaMeasure
+{
+
+// Want to use different types for literals?
+// Change these then!
+using LongDoubleLiteralResult = long double;
+using UnsignedLongLongLiteralResult = long long int;
+
+}
+
 // Does the same thing as METAMEASURE_UNIT except you pass in a type for RATIO
 // Use a typedef for it, as macros hate commas
 #define METAMEASURE_UNIT_WITH_RATIO_TYPE(NAME, DIMENSION, RATIO) \
@@ -31,21 +41,13 @@ template<typename NumT, MetaMeasure::ExponentType Exponent = 1> \
 using NAME = MetaMeasure::Measurement<NumT, Unit##NAME<Exponent>>; \
 METAMEASURE_FORCE_SEMICOLON
 
-#ifndef METAMEASURE_LITERAL_LD_NUMBER_TYPE
-#define METAMEASURE_LITERAL_LD_NUMBER_TYPE long double
-#endif
-
-#ifndef METAMEASURE_LITERAL_ULL_NUMBER_TYPE
-#define METAMEASURE_LITERAL_ULL_NUMBER_TYPE long long int
-#endif
-
 // Defines a literal for a single unit measurement which uses a long double as its value type
 // UNIT is the name of the unit (not the full type name!)
 // SUFFIX is the suffix the literal will use
 #define METAMEASURE_LITERAL_LD(UNIT, EXPONENT, SUFFIX) \
-UNIT<METAMEASURE_LITERAL_LD_NUMBER_TYPE, EXPONENT> operator"" SUFFIX (long double v) \
+UNIT<MetaMeasure::LongDoubleLiteralResult, EXPONENT> operator"" SUFFIX (long double v) \
 { \
-  return static_cast<METAMEASURE_LITERAL_LD_NUMBER_TYPE>(v); \
+  return static_cast<MetaMeasure::LongDoubleLiteralResult>(v); \
 } \
 METAMEASURE_FORCE_SEMICOLON
 
@@ -53,9 +55,9 @@ METAMEASURE_FORCE_SEMICOLON
 // UNIT is the MetaMeasure::Measurement that will be returned
 // SUFFIX is the suffix the literal will use
 #define METAMEASURE_LITERAL_ULL(UNIT, EXPONENT, SUFFIX) \
-UNIT<METAMEASURE_LITERAL_ULL_NUMBER_TYPE, EXPONENT> operator"" SUFFIX (unsigned long long int v) \
+UNIT<MetaMeasure::UnsignedLongLongLiteralResult, EXPONENT> operator"" SUFFIX (unsigned long long int v) \
 { \
-  return static_cast<METAMEASURE_LITERAL_ULL_NUMBER_TYPE>(v); \
+  return static_cast<MetaMeasure::UnsignedLongLongLiteralResult>(v); \
 } \
 METAMEASURE_FORCE_SEMICOLON
 
@@ -65,7 +67,7 @@ METAMEASURE_FORCE_SEMICOLON
 #define METAMEASURE_LITERAL_LD_WITH_TYPE(TYPE, SUFFIX) \
 TYPE operator"" SUFFIX (long double v) \
 { \
-  return static_cast<METAMEASURE_LITERAL_LD_NUMBER_TYPE>(v); \
+  return static_cast<MetaMeasure::LongDoubleLiteralResult>(v); \
 } \
 METAMEASURE_FORCE_SEMICOLON
 
@@ -75,7 +77,7 @@ METAMEASURE_FORCE_SEMICOLON
 #define METAMEASURE_LITERAL_ULL_WITH_TYPE(TYPE, SUFFIX) \
 TYPE operator"" SUFFIX (unsigned long long int v) \
 { \
-  return static_cast<METAMEASURE_LITERAL_ULL_NUMBER_TYPE>(v); \
+  return static_cast<MetaMeasure::UnsignedLongLongLiteralResult>(v); \
 } \
 METAMEASURE_FORCE_SEMICOLON
 
