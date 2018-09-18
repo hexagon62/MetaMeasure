@@ -98,7 +98,8 @@ int main()
   out << "result = " << distanceTravelled<long double>(5_m/1_s, 10_s).value() << " m; should be 50 m" << std::endl;
   out << std::endl;
 
-  auto wut = 5_m/5_m;
-  out << wut << std::endl;
+  auto j = 5_m / 2_m;
+  out << "Testing cancelling out units through division:" << std::endl;
+  out << "j = " << j << "; should be 2.5" << std::endl; // note the lack of .value(), this is because j is just a normal number
   out << std::endl;
 }
