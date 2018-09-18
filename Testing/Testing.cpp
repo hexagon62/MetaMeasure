@@ -3,6 +3,15 @@
 
 #include <fstream>
 
+template<typename T>
+using Velocity = MetaMeasure::Measurement<T, MetaMeasure::UnitMeters<1>, MetaMeasure::UnitSeconds<-1>>;
+
+template<typename T>
+MetaMeasure::Meters<T> distanceTravelled(Velocity<T> vel, MetaMeasure::Seconds<T> time)
+{
+  return vel * time;
+}
+
 int main()
 {
   using namespace MetaMeasure;
@@ -83,5 +92,9 @@ int main()
   auto i = 2*h*freq;
   out << "Testing hertz literal:" << std::endl;
   out << "i = " << i.value() << " m^3*Hz; should be 2000 m^3*Hz" << std::endl;
+  out << std::endl;
+
+  out << "Testing passing stuff to function:" << std::endl;
+  out << "result = " << distanceTravelled<long double>(5_m/1_s, 10_s).value() << " m; should be 50 m" << std::endl;
   out << std::endl;
 }

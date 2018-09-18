@@ -6,6 +6,7 @@
 #include <cstddef>
 
 // Does the same thing as METAMEASURE_UNIT except you pass in a type for RATIO
+// Use a typedef for it, as macros hate commas
 #define METAMEASURE_UNIT_WITH_RATIO_TYPE(NAME, DIMENSION, RATIO) \
 template<MetaMeasure::ExponentType Exponent = 1> \
 using Unit##NAME = MetaMeasure::Unit<MetaMeasure::Dimension<DIMENSION, Exponent>, RATIO>; \
@@ -24,8 +25,10 @@ METAMEASURE_FORCE_SEMICOLON
 // The conversion ratio is a ratio that, if multiplied by your measurement, converts the measurement to base units.
 // In the case of MetaMeasure::Length, it would convert your measurement to meters.
 #define METAMEASURE_UNIT(NAME, DIMENSION, RATIO_NUM, RATIO_DEN) \
-namespace _METAMEASURE_RATIOS_0_##NAME { using Main = std::ratio<RATIO_NUM, RATIO_DEN>; } \
-METAMEASURE_UNIT_WITH_RATIO_TYPE(NAME, DIMENSION, _METAMEASURE_RATIOS_0_##NAME::Main); \
+template<MetaMeasure::ExponentType Exponent = 1> \
+using Unit##NAME = MetaMeasure::Unit<MetaMeasure::Dimension<DIMENSION, Exponent>, std::ratio<RATIO_NUM, RATIO_DEN>>; \
+template<typename NumT, MetaMeasure::ExponentType Exponent = 1> \
+using NAME = MetaMeasure::Measurement<NumT, Unit##NAME<Exponent>>; \
 METAMEASURE_FORCE_SEMICOLON
 
 #ifndef METAMEASURE_LITERAL_LD_NUMBER_TYPE
@@ -36,7 +39,7 @@ METAMEASURE_FORCE_SEMICOLON
 #define METAMEASURE_LITERAL_ULL_NUMBER_TYPE long long int
 #endif
 
-// Defines a literal for a unit which uses a long double as its parameter
+// Defines a literal for a single unit measurement which uses a long double as its value type
 // UNIT is the name of the unit (not the full type name!)
 // SUFFIX is the suffix the literal will use
 #define METAMEASURE_LITERAL_LD(UNIT, EXPONENT, SUFFIX) \
@@ -46,7 +49,7 @@ UNIT<METAMEASURE_LITERAL_LD_NUMBER_TYPE, EXPONENT> operator"" SUFFIX (long doubl
 } \
 METAMEASURE_FORCE_SEMICOLON
 
-// Defines a literal for a unit which uses an unsigned long long int as its parameter
+// Defines a literal for a single unit measurement which uses an unsigned long long int as its value type
 // UNIT is the MetaMeasure::Measurement that will be returned
 // SUFFIX is the suffix the literal will use
 #define METAMEASURE_LITERAL_ULL(UNIT, EXPONENT, SUFFIX) \
@@ -56,10 +59,36 @@ UNIT<METAMEASURE_LITERAL_ULL_NUMBER_TYPE, EXPONENT> operator"" SUFFIX (unsigned 
 } \
 METAMEASURE_FORCE_SEMICOLON
 
+// Defines a literal for a measurement which uses a long double as its parameter
+// TYPE is the type of the measurement
+// SUFFIX is the suffix the literal will use
+#define METAMEASURE_LITERAL_LD_WITH_TYPE(TYPE, SUFFIX) \
+TYPE operator"" SUFFIX (long double v) \
+{ \
+  return static_cast<METAMEASURE_LITERAL_LD_NUMBER_TYPE>(v); \
+} \
+METAMEASURE_FORCE_SEMICOLON
+
+// Defines a literal for a unit which uses an unsigned long long int as its parameter
+// UNIT is the MetaMeasure::Measurement that will be returned
+// SUFFIX is the suffix the literal will use
+#define METAMEASURE_LITERAL_ULL_WITH_TYPE(TYPE, SUFFIX) \
+TYPE operator"" SUFFIX (unsigned long long int v) \
+{ \
+  return static_cast<METAMEASURE_LITERAL_ULL_NUMBER_TYPE>(v); \
+} \
+METAMEASURE_FORCE_SEMICOLON
+
 // Combination of METAMEASURE_LITERAL_LD & METAMEASURE_LITERAL_ULL
 #define METAMEASURE_LITERAL(UNIT, EXPONENT, SUFFIX) \
 METAMEASURE_LITERAL_LD(UNIT, EXPONENT, SUFFIX); \
 METAMEASURE_LITERAL_ULL(UNIT, EXPONENT, SUFFIX); \
+METAMEASURE_FORCE_SEMICOLON
+
+// Combination of METAMEASURE_LITERAL_LD_WITH_TYPE & METAMEASURE_LITERAL_ULL_WITH_TYPE
+#define METAMEASURE_LITERAL_WITH_TYPE(TYPE, SUFFIX) \
+METAMEASURE_LITERAL_LD_WITH_TYPE(TYPE, SUFFIX); \
+METAMEASURE_LITERAL_ULL_WITH_TYPE(TYPE, SUFFIX); \
 METAMEASURE_FORCE_SEMICOLON
 
 #ifdef METAMEASURE_ZETTA_AND_ZEPTO_SUPPORTED
@@ -77,6 +106,11 @@ METAMEASURE_FORCE_SEMICOLON
 METAMEASURE_LITERAL(Zetta##UNIT, EXPONENT, _Z##SUFFIX); \
 METAMEASURE_LITERAL(Zepto##UNIT, EXPONENT, _z##SUFFIX); \
 METAMEASURE_FORCE_SEMICOLON
+
+#define _METAMEASURE_ZETTA_AND_ZEPTO_LITERALS_WITH_TYPE(TYPE, SUFFIX) \
+METAMEASURE_LITERAL_WITH_TYPE(Zetta##TYPE, _Z##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Zepto##TYPE, _z##SUFFIX); \
+METAMEASURE_FORCE_SEMICOLON
 #else
 #define _METAMEASURE_ZETTA_AND_ZEPTO_RATIOS \
 METAMEASURE_FORCE_SEMICOLON
@@ -85,6 +119,9 @@ METAMEASURE_FORCE_SEMICOLON
 METAMEASURE_FORCE_SEMICOLON
 
 #define _METAMEASURE_ZETTA_AND_ZEPTO_LITERALS(UNIT, EXPONENT, SUFFIX) \
+METAMEASURE_FORCE_SEMICOLON
+
+#define _METAMEASURE_ZETTA_AND_ZEPTO_LITERALS_WITH_TYPE(TYPE, SUFFIX) \
 METAMEASURE_FORCE_SEMICOLON
 #endif
 
@@ -103,6 +140,11 @@ METAMEASURE_FORCE_SEMICOLON
 METAMEASURE_LITERAL(Yotta##UNIT, EXPONENT, _Y##SUFFIX); \
 METAMEASURE_LITERAL(Yocto##UNIT, EXPONENT, _y##SUFFIX); \
 METAMEASURE_FORCE_SEMICOLON
+
+#define _METAMEASURE_YOTTA_AND_YOCTO_LITERALS_WITH_TYPE(TYPE, SUFFIX) \
+METAMEASURE_LITERAL_WITH_TYPE(Yotta##TYPE, _Y##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Yocto##TYPE, _y##SUFFIX); \
+METAMEASURE_FORCE_SEMICOLON
 #else
 #define _METAMEASURE_YOTTA_AND_YOCTO_RATIOS \
 METAMEASURE_FORCE_SEMICOLON
@@ -112,11 +154,14 @@ METAMEASURE_FORCE_SEMICOLON
 
 #define _METAMEASURE_YOTTA_AND_YOCTO_LITERALS(UNIT, EXPONENT, SUFFIX) \
 METAMEASURE_FORCE_SEMICOLON
+
+#define _METAMEASURE_YOTTA_AND_YOCTO_LITERALS_WITH_TYPE(TYPE, SUFFIX) \
+METAMEASURE_FORCE_SEMICOLON
 #endif
 
 // Macro to make a type with all of the metric prefixes, save for the one without a prefix
 // See METAMEASURE_UNIT_WITH_RATIO_TYPE for instructions, as the parameters are the same
-#define METAMEASURE_UNIT_WITH_METRIC_PREFIXES_WITH_RATIO_TYPE(NAME, DIMENSION, RATIO) \
+#define METAMEASURE_UNIT_WITH_RATIO_TYPE_AND_METRIC_PREFIXES(NAME, DIMENSION, RATIO) \
 namespace _METAMEASURE_RATIOS_1_##NAME \
 { \
   using Main  = RATIO; \
@@ -163,7 +208,7 @@ METAMEASURE_FORCE_SEMICOLON
 // See METAMEASURE_UNIT for instructions, as the parameters are the same
 #define METAMEASURE_UNIT_WITH_METRIC_PREFIXES(NAME, DIMENSION, RATIO_NUM, RATIO_DEN) \
 namespace _METAMEASURE_RATIOS_2_##NAME { using Main  = std::ratio<RATIO_NUM, RATIO_DEN>; } \
-METAMEASURE_UNIT_WITH_METRIC_PREFIXES_WITH_RATIO_TYPE(NAME, DIMENSION, _METAMEASURE_RATIOS_2_##NAME::Main); \
+METAMEASURE_UNIT_WITH_RATIO_TYPE_AND_METRIC_PREFIXES(NAME, DIMENSION, _METAMEASURE_RATIOS_2_##NAME::Main); \
 METAMEASURE_FORCE_SEMICOLON
 
 // Creates literals with metric prefixes. Be sure to have already created the units.
@@ -189,6 +234,30 @@ METAMEASURE_LITERAL(Femto##UNIT, EXPONENT, _f##SUFFIX); \
 METAMEASURE_LITERAL(Atto##UNIT,  EXPONENT, _a##SUFFIX); \
 _METAMEASURE_ZETTA_AND_ZEPTO_LITERALS(UNIT, EXPONENT, SUFFIX); \
 _METAMEASURE_YOTTA_AND_YOCTO_LITERALS(UNIT, EXPONENT, SUFFIX); \
+METAMEASURE_FORCE_SEMICOLON
+
+// See METAMEASURE_LITERAL_WITH_METRIC_PREFIXES
+// You specify the type directly through TYPE instead of putting in a unit and exponent.
+// The type should be a typedef though, since macros don't like commas
+#define METAMEASURE_LITERAL_WITH_TYPE_AND_METRIC_PREFIXES(TYPE, SUFFIX) \
+METAMEASURE_LITERAL_WITH_TYPE(Exa##TYPE,   _E##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Peta##TYPE,  _P##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Tera##TYPE,  _T##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Giga##TYPE,  _G##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Mega##TYPE,  _M##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Kilo##TYPE,  _k##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Hecto##TYPE, _h##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Deca##TYPE,  _da##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Deci##TYPE,  _d##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Centi##TYPE, _c##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Milli##TYPE, _m##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Micro##TYPE, _u##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Nano##TYPE,  _n##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Pico##TYPE,  _p##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Femto##TYPE, _f##SUFFIX); \
+METAMEASURE_LITERAL_WITH_TYPE(Atto##TYPE,  _a##SUFFIX); \
+_METAMEASURE_ZETTA_AND_ZEPTO_LITERALS_WITH_TYPE(TYPE, SUFFIX); \
+_METAMEASURE_YOTTA_AND_YOCTO_LITERALS_WITH_TYPE(TYPE, SUFFIX); \
 METAMEASURE_FORCE_SEMICOLON
 
 namespace MetaMeasure

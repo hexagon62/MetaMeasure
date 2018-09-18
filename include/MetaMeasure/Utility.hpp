@@ -302,9 +302,14 @@ struct ReciprocalDimensions_<std::tuple<>>
 template<typename T, typename... Ts>
 struct ReciprocalDimensions_<std::tuple<T, Ts...>>
 {
+private:
+  using FlippedDimension = Dimension<typename T::Dimension::Identifier, (-ExponentOf<T>::Value)>;
+  using FlippedUnit = Unit<FlippedDimension, typename T::Ratio>;
+
+public:
   using Type = TupleCat
   <
-    Dimension<typename T::Dimension::Identifier, (-ExponentOf<T>::Value)>,
+    std::tuple<FlippedUnit>,
     typename ReciprocalDimensions_<std::tuple<Ts...>>::Type
   >;
 };
@@ -351,7 +356,7 @@ public:
     <
       SameDimension,
       std::tuple<MultipliedUnit>,
-      std::tuple<T>
+      std::tuple<U>
     >,
     typename MultiplyDimension_<std::tuple<Us...>, T>::Type
   >;
@@ -394,21 +399,16 @@ public:
 };
 
 template<typename Tuple, typename Tuple2>
-using MultiplyDimensions = RemoveZeroDimensions
-<
-  typename MultiplyDimensions_<Tuple, Tuple2>::Type
->;
-
-// Divides Tuple's dimensions by Tuple2's dimensions
-template<typename Tuple, typename Tuple2>
-using DivideDimensions = RemoveZeroDimensions
-<
+using MultiplyDimensions = 
   typename MultiplyDimensions_
   <
     LargerTuple<Tuple, Tuple2>,
     SmallerTuple<Tuple, Tuple2>
-  >::Type
->;
+  >::Type;
+
+// Divides Tuple's dimensions by Tuple2's dimensions
+template<typename Tuple, typename Tuple2>
+using DivideDimensions = MultiplyDimensions<Tuple, ReciprocalDimensions<Tuple2>>;
 
 }
 
