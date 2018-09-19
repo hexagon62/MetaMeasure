@@ -2,6 +2,7 @@
 #define METAMEASURE_MEASUREMENT_INCLUDED
 
 #include <MetaMeasure/Utility.hpp>
+#include <iostream>
 
 namespace MetaMeasure
 {
@@ -91,6 +92,12 @@ private:
     Private::DivideDimensions<UnitTuple, std::tuple<Units...>>
   >;
 
+  using Reciprocal = Private::MeasurementThroughTuple
+  <
+    ValueType,
+    Private::ReciprocalDimensions<UnitTuple>
+  >;
+
 public:
 
   constexpr Measurement() = default;
@@ -152,15 +159,15 @@ public:
   }
 
   template<typename NumU>
-  constexpr ThisType operator/(const NumU& factor)
+  constexpr ThisType operator/(const NumU& divisor)
   {
-    return this->v / factor;
+    return this->v / divisor;
   }
 
   template<typename NumU>
-  friend constexpr ThisType operator/(const NumU& factor, const ThisType& r)
+  friend constexpr Reciprocal operator/(const NumU& dividend, const ThisType& divisor)
   {
-    return r.v * factor;
+    return dividend / divisor.v;
   }
 
   constexpr ThisType operator-()
@@ -174,6 +181,17 @@ public:
   }
 
   // Assignment operators
+  /*template<typename NumU>
+  constexpr ThisType& operator=(const NumU& newValue)
+  {
+#ifdef METAMEASURE_SUPPRESS_CONVERSION_WARNINGS
+    this->v = static_cast<ValueType>(newValue);
+#else
+    this->v = newValue;
+#endif
+    return *this;
+  }*/
+
   template<typename M, IfConvertible<M> = 0>
   constexpr ThisType& operator=(const M& other)
   {
