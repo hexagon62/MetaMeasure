@@ -129,6 +129,34 @@ void division(std::ostream& out)
   out << std::endl;
 }
 
+void multiplicationOfMeasurements(std::ostream& out)
+{
+  out << "Testing multiplication of measurements:" << std::endl;
+
+  auto x = 10.0_m;
+  auto y = 1.0_mm;
+  auto res = x*y;
+
+  out << "x = " << x.value() << " m; should be 10 m" << std::endl;
+  out << "y = " << y.value() << " mm; should be 1 mm" << std::endl;
+  out << "x*y = " << res.value() << " m^2; should be 0.01 m^2" << std::endl;
+  out << std::endl;
+}
+
+void divisionOfMeasurements(std::ostream& out)
+{
+  out << "Testing division of measurements:" << std::endl;
+
+  auto x = 10.0_m;
+  auto y = 1.0_mm;
+  auto res = x / y;
+
+  out << "x = " << x.value() << " m; should be 10 m" << std::endl;
+  out << "y = " << y.value() << " mm; should be 1 mm" << std::endl;
+  out << "x/y = " << res << "; should be 10000" << std::endl;
+  out << std::endl;
+}
+
 void additionAssignment(std::ostream& out)
 {
   out << "Testing addition assignment of measurements:" << std::endl;
@@ -313,6 +341,8 @@ int main()
     MetaMeasure::Tests::subtraction,
     MetaMeasure::Tests::multiplication,
     MetaMeasure::Tests::division,
+    MetaMeasure::Tests::multiplicationOfMeasurements,
+    MetaMeasure::Tests::divisionOfMeasurements,
     MetaMeasure::Tests::additionAssignment,
     MetaMeasure::Tests::subtractionAssignment,
     MetaMeasure::Tests::multiplicationAssignment,
