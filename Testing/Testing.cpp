@@ -17,9 +17,6 @@ template<typename T>
 using Velocity = Measurement<T, UnitMeters<1>, UnitSeconds<-1>>;
 
 template<typename T>
-using Coulombs = Measurement<long double, UnitAmperes<1>, UnitSeconds<1>>;
-
-template<typename T>
 Meters<T> distanceTravelled(Velocity<T> vel, Seconds<T> time)
 {
   return vel * time;
@@ -277,14 +274,27 @@ void differentDimensionDivision(std::ostream& out)
 {
   out << "Testing multiplication of measurements with different dimensions:" << std::endl;
 
-  Meters<long double> distance = 10.0_m;
-  Seconds<long double> time = 2.0_s;
-  Velocity<long double> velocity = distance/time;
+  auto distance = 10.0_m;
+  auto time = 2.0_s;
+  auto velocity = distance/time;
 
   out << "distance = " << distance.value() << " m; should be 10 m" << std::endl;
   out << "time = " << time.value() << " s; should be 2 s" << std::endl;
   out << "velocity = " << velocity.value() << " m/s; should be 5 m/s" << std::endl;
   out << std::endl;
+}
+
+void useFunction(std::ostream& out)
+{
+  out << "Testing passing parameters to function and getting result back:" << std::endl;
+
+  auto vel = 10.0_m/1.0_s;
+  auto time = 5.0_s;
+  auto res = distanceTravelled(vel, time);
+
+  out << "vel = " << vel.value() << " m/s; should be 10 m/s" << std::endl;
+  out << "time = " << time.value() << " s; should be 5 s" << std::endl;
+  out << "res = " << res.value() << " m; should be 50 m" << std::endl;
 }
 
 }
@@ -311,7 +321,8 @@ int main()
     MetaMeasure::Tests::sameDimensionMultiplication,
     MetaMeasure::Tests::sameDimensionDivision,
     MetaMeasure::Tests::differentDimensionMultiplication,
-    MetaMeasure::Tests::differentDimensionDivision
+    MetaMeasure::Tests::differentDimensionDivision,
+    MetaMeasure::Tests::useFunction
   };
 
   for (auto& i : tests) i(out);
