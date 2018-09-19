@@ -311,12 +311,45 @@ METAMEASURE_LITERAL_WITH_METRIC_PREFIXES(moles,    1,  mol);
 // There are 100 centimeters for every 1 meter, and thus 100 inches for every 2.54 meters.
 // Since std::ratio can only hold whole numbers, the ratio will be 10000 inches to 254 meters.
 // We can simplify this down to 5000 inches per 127 meters.
-METAMEASURE_UNIT(Inches, Length, 5000, 127);
+
+// Lengths
+METAMEASURE_UNIT(Points, Length, 360000, 127);
+METAMEASURE_UNIT(Pica, Length, 30000, 127);
+METAMEASURE_UNIT(Inches, Length, 5000, 127); // ratio from above
+METAMEASURE_UNIT(Feet, Length, 1250, 381);
+METAMEASURE_UNIT(Yards, Length, 1250, 1143);
+METAMEASURE_UNIT(Miles, Length, 2200000, 1143);
+METAMEASURE_UNIT(Links, Length, 825, 381);
+METAMEASURE_UNIT(SurveyFeet, Length, 3937, 1200);
+METAMEASURE_UNIT(Rods, Length, 6875, 127);
+METAMEASURE_UNIT(Chains, Length, 27500, 127);
+METAMEASURE_UNIT(Furlongs, Length, 275000, 127);
+METAMEASURE_UNIT(SurveyMiles, Length, 2200000, 127);
+METAMEASURE_UNIT(Leagues, Length, 6600000, 127);
+METAMEASURE_UNIT(Fathoms, Length, 2500, 1143);
+METAMEASURE_UNIT(Cables, Length, 100000, 381);
+METAMEASURE_UNIT(NauticalMiles, Length, 281300, 127);
 
 namespace CustomaryLiterals
 {
 
+// Lengths
+METAMEASURE_LITERAL(Points, 1, _pt);
+METAMEASURE_LITERAL(Pica, 1, _pc);
 METAMEASURE_LITERAL(Inches, 1, _in);
+METAMEASURE_LITERAL(Feet, 1, _ft);
+METAMEASURE_LITERAL(Yards, 1, _yd);
+METAMEASURE_LITERAL(Miles, 1, _mi);
+METAMEASURE_LITERAL(Links, 1, _li);
+METAMEASURE_LITERAL(SurveyFeet, 1, _sft);
+METAMEASURE_LITERAL(Rods, 1, _rd);
+METAMEASURE_LITERAL(Chains, 1, _ch);
+METAMEASURE_LITERAL(Furlongs, 1, _fur);
+METAMEASURE_LITERAL(SurveyMiles, 1, _smi);
+METAMEASURE_LITERAL(Leagues, 1, _lea);
+METAMEASURE_LITERAL(Fathoms, 1, _ftm);
+METAMEASURE_LITERAL(Cables, 1, _cb);
+METAMEASURE_LITERAL(NauticalMiles, 1, _nm);
 
 }
 
