@@ -1,5 +1,5 @@
 # MetaMeasure
-A header only library for storing measurements and doing simple dimensional analysis with them at compile-time.
+A work-in-progress header only library for storing measurements and doing simple dimensional analysis with them at compile-time.
 
 # Simple program that converts from meters to inches
 ```cpp
